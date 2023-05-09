@@ -13,6 +13,8 @@
 		012E53A42A03380400EB55A9 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 012E53A22A03380400EB55A9 /* LaunchScreen.storyboard */; };
 		012E53AC2A03393000EB55A9 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 012E53AB2A03393000EB55A9 /* README.md */; };
 		012E53B62A03408600EB55A9 /* OnboardingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 012E53B52A03408500EB55A9 /* OnboardingViewController.swift */; };
+		013F89AD2A09C8CB00F0F085 /* OnboardingCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 013F89AC2A09C8CB00F0F085 /* OnboardingCollectionViewCell.swift */; };
+		013F89AF2A09CDFB00F0F085 /* OnboardingSlide.swift in Sources */ = {isa = PBXBuildFile; fileRef = 013F89AE2A09CDFB00F0F085 /* OnboardingSlide.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -24,6 +26,8 @@
 		012E53A52A03380400EB55A9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		012E53AB2A03393000EB55A9 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		012E53B52A03408500EB55A9 /* OnboardingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingViewController.swift; sourceTree = "<group>"; };
+		013F89AC2A09C8CB00F0F085 /* OnboardingCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingCollectionViewCell.swift; sourceTree = "<group>"; };
+		013F89AE2A09CDFB00F0F085 /* OnboardingSlide.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingSlide.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -62,6 +66,7 @@
 				012E53AF2A03397900EB55A9 /* Resources */,
 				012E53B02A03399300EB55A9 /* Helper */,
 				012E53B12A0339A300EB55A9 /* Network */,
+				013F89B02A09D8FB00F0F085 /* Models */,
 				012E53B22A0339B700EB55A9 /* Scene */,
 			);
 			path = Foody;
@@ -126,9 +131,18 @@
 		012E53B42A03406900EB55A9 /* Onboarding */ = {
 			isa = PBXGroup;
 			children = (
+				013F89AC2A09C8CB00F0F085 /* OnboardingCollectionViewCell.swift */,
 				012E53B52A03408500EB55A9 /* OnboardingViewController.swift */,
 			);
 			path = Onboarding;
+			sourceTree = "<group>";
+		};
+		013F89B02A09D8FB00F0F085 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				013F89AE2A09CDFB00F0F085 /* OnboardingSlide.swift */,
+			);
+			path = Models;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -204,7 +218,9 @@
 			files = (
 				012E53982A03380200EB55A9 /* AppDelegate.swift in Sources */,
 				012E539A2A03380200EB55A9 /* SceneDelegate.swift in Sources */,
+				013F89AF2A09CDFB00F0F085 /* OnboardingSlide.swift in Sources */,
 				012E53B62A03408600EB55A9 /* OnboardingViewController.swift in Sources */,
+				013F89AD2A09C8CB00F0F085 /* OnboardingCollectionViewCell.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
