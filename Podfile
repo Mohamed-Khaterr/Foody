@@ -6,5 +6,6 @@ target 'Foody' do
   use_frameworks!
 
   # Pods for Foody
+  pod 'SDWebImage'
 
 end
