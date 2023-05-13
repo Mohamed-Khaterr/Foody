@@ -13,6 +13,7 @@
 		012E53A42A03380400EB55A9 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 012E53A22A03380400EB55A9 /* LaunchScreen.storyboard */; };
 		012E53AC2A03393000EB55A9 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 012E53AB2A03393000EB55A9 /* README.md */; };
 		012E53B62A03408600EB55A9 /* OnboardingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 012E53B52A03408500EB55A9 /* OnboardingViewController.swift */; };
+		013A089E2A0F6CCC00591747 /* HomeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 013A089D2A0F6CCC00591747 /* HomeViewController.swift */; };
 		013F89AD2A09C8CB00F0F085 /* OnboardingCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 013F89AC2A09C8CB00F0F085 /* OnboardingCollectionViewCell.swift */; };
 		013F89AF2A09CDFB00F0F085 /* OnboardingSlide.swift in Sources */ = {isa = PBXBuildFile; fileRef = 013F89AE2A09CDFB00F0F085 /* OnboardingSlide.swift */; };
 /* End PBXBuildFile section */
@@ -26,6 +27,7 @@
 		012E53A52A03380400EB55A9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		012E53AB2A03393000EB55A9 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		012E53B52A03408500EB55A9 /* OnboardingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingViewController.swift; sourceTree = "<group>"; };
+		013A089D2A0F6CCC00591747 /* HomeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewController.swift; sourceTree = "<group>"; };
 		013F89AC2A09C8CB00F0F085 /* OnboardingCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingCollectionViewCell.swift; sourceTree = "<group>"; };
 		013F89AE2A09CDFB00F0F085 /* OnboardingSlide.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingSlide.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -117,6 +119,7 @@
 			isa = PBXGroup;
 			children = (
 				012E53B42A03406900EB55A9 /* Onboarding */,
+				013A089C2A0F6CAC00591747 /* Home */,
 			);
 			path = Scene;
 			sourceTree = "<group>";
@@ -135,6 +138,14 @@
 				012E53B52A03408500EB55A9 /* OnboardingViewController.swift */,
 			);
 			path = Onboarding;
+			sourceTree = "<group>";
+		};
+		013A089C2A0F6CAC00591747 /* Home */ = {
+			isa = PBXGroup;
+			children = (
+				013A089D2A0F6CCC00591747 /* HomeViewController.swift */,
+			);
+			path = Home;
 			sourceTree = "<group>";
 		};
 		013F89B02A09D8FB00F0F085 /* Models */ = {
@@ -221,6 +232,7 @@
 				013F89AF2A09CDFB00F0F085 /* OnboardingSlide.swift in Sources */,
 				012E53B62A03408600EB55A9 /* OnboardingViewController.swift in Sources */,
 				013F89AD2A09C8CB00F0F085 /* OnboardingCollectionViewCell.swift in Sources */,
+				013A089E2A0F6CCC00591747 /* HomeViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

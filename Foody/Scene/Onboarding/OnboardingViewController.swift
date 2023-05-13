@@ -19,7 +19,6 @@ class OnboardingViewController: UIViewController {
         collectionView.delegate = self
         collectionView.dataSource = self
         collectionView.isPagingEnabled = true
-        collectionView.isScrollEnabled = false
         collectionView.showsVerticalScrollIndicator = false
         collectionView.showsHorizontalScrollIndicator = false
         collectionView.register(OnboardingCollectionViewCell.self, forCellWithReuseIdentifier: OnboardingCollectionViewCell.identifier)
@@ -49,29 +48,15 @@ class OnboardingViewController: UIViewController {
     
     
     // MARK: - Variables
-    private var slides: [OnboardingSlide] = [
-        .init(title: "Title 1", description: "Description 1", image: UIImage(named: "slide1")),
-        .init(title: "Title 2", description: "Description 2", image: UIImage(named: "slide2")),
-        .init(title: "Title 3", description: "Description 3", image: UIImage(named: "slide3")),
-    ]
+    private var slides = [OnboardingSlide]()
     
     private var selectedSlide: Int = 0 {
         didSet {
-            if selectedSlide == slides.count {
-                selectedSlide = 0
-                button.setTitle("Next", for: .normal)
-                
-                
-            } else if selectedSlide == slides.count - 1 {
+            if selectedSlide == slides.count - 1 {
                 button.setTitle("Get Started", for: .normal)
                 
-            }
-            
-            pageControl.currentPage = selectedSlide
-            
-            let indexPath = IndexPath(item: selectedSlide, section: 0)
-            if let rect = collectionView.layoutAttributesForItem(at: indexPath)?.frame{
-                collectionView.scrollRectToVisible(rect, animated: true)
+            } else {
+                button.setTitle("Next", for: .normal)
             }
         }
     }
@@ -86,6 +71,14 @@ class OnboardingViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        slides = [
+            .init(title: "Delicious Dishes", description: "Experience a variety of amazing dishes from different cultures around the world.", image: UIImage(named: "slide1")),
+            .init(title: "World-Class Chefs", description: "Our dishes are prepared by oonly the best.", image: UIImage(named: "slide2")),
+            .init(title: "Instant World-Wide Delivery", description: "Your orders will be delivered instantly irrespective of your location around the world.", image: UIImage(named: "slide3")),
+        ]
+        
+        pageControl.numberOfPages = slides.count
     }
     
     
@@ -126,6 +119,17 @@ class OnboardingViewController: UIViewController {
     // MARK: - Functions
     @objc private func buttonPressed() {
         selectedSlide += 1
+        
+        if selectedSlide == slides.count {
+            let nav = UINavigationController(rootViewController: HomeViewController())
+            nav.modalPresentationStyle = .fullScreen
+            present(nav, animated: true)
+        }
+        
+        let indexPath = IndexPath(item: selectedSlide, section: 0)
+        if let rect = collectionView.layoutAttributesForItem(at: indexPath)?.frame{
+            collectionView.scrollRectToVisible(rect, animated: true)
+        }
     }
 }
 
@@ -149,5 +153,15 @@ extension OnboardingViewController: UICollectionViewDataSource {
 extension OnboardingViewController: UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         return collectionView.frame.size
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
+        return 0
+    }
+    
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        let index = Int(scrollView.contentOffset.x)/Int(view.frame.width)
+        selectedSlide = index
+        pageControl.currentPage = index
     }
 }
