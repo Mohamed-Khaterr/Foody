@@ -28,6 +28,7 @@
 		016890782A0FC43F00A61A31 /* Dish.swift in Sources */ = {isa = PBXBuildFile; fileRef = 016890772A0FC43F00A61A31 /* Dish.swift */; };
 		01F3D83B2A1209A000514C66 /* DishLandscapeCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01F3D83A2A1209A000514C66 /* DishLandscapeCollectionViewCell.swift */; };
 		01F3D83D2A120D6B00514C66 /* ChefSpecialSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01F3D83C2A120D6A00514C66 /* ChefSpecialSection.swift */; };
+		01F3D8402A12262C00514C66 /* DishDetailsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01F3D83F2A12262C00514C66 /* DishDetailsViewController.swift */; };
 		9849F108B588286846FBF4A2 /* Pods_Foody.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 254123C02155A5A3882540AC /* Pods_Foody.framework */; };
 /* End PBXBuildFile section */
 
@@ -55,6 +56,7 @@
 		016890772A0FC43F00A61A31 /* Dish.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Dish.swift; sourceTree = "<group>"; };
 		01F3D83A2A1209A000514C66 /* DishLandscapeCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DishLandscapeCollectionViewCell.swift; sourceTree = "<group>"; };
 		01F3D83C2A120D6A00514C66 /* ChefSpecialSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChefSpecialSection.swift; sourceTree = "<group>"; };
+		01F3D83F2A12262C00514C66 /* DishDetailsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DishDetailsViewController.swift; sourceTree = "<group>"; };
 		16CFADB6DC8D19571CB3667E /* Pods-Foody.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Foody.debug.xcconfig"; path = "Target Support Files/Pods-Foody/Pods-Foody.debug.xcconfig"; sourceTree = "<group>"; };
 		254123C02155A5A3882540AC /* Pods_Foody.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Foody.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		DC2ED13C82A16A4DA493E4FB /* Pods-Foody.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Foody.release.xcconfig"; path = "Target Support Files/Pods-Foody/Pods-Foody.release.xcconfig"; sourceTree = "<group>"; };
@@ -154,6 +156,7 @@
 			children = (
 				012E53B42A03406900EB55A9 /* Onboarding */,
 				013A089C2A0F6CAC00591747 /* Home */,
+				01F3D83E2A12260700514C66 /* DishDetails */,
 			);
 			path = Scene;
 			sourceTree = "<group>";
@@ -221,6 +224,14 @@
 				01F3D83A2A1209A000514C66 /* DishLandscapeCollectionViewCell.swift */,
 			);
 			path = CollectionViewCells;
+			sourceTree = "<group>";
+		};
+		01F3D83E2A12260700514C66 /* DishDetails */ = {
+			isa = PBXGroup;
+			children = (
+				01F3D83F2A12262C00514C66 /* DishDetailsViewController.swift */,
+			);
+			path = DishDetails;
 			sourceTree = "<group>";
 		};
 		57FB3609D7AA9D18606F71B0 /* Frameworks */ = {
@@ -367,6 +378,7 @@
 				016890742A0FBF5000A61A31 /* DishPortraitCollectionViewCell.swift in Sources */,
 				01F3D83B2A1209A000514C66 /* DishLandscapeCollectionViewCell.swift in Sources */,
 				016890702A0FB15000A61A31 /* CardView.swift in Sources */,
+				01F3D8402A12262C00514C66 /* DishDetailsViewController.swift in Sources */,
 				012E53B62A03408600EB55A9 /* OnboardingViewController.swift in Sources */,
 				013F89AD2A09C8CB00F0F085 /* OnboardingCollectionViewCell.swift in Sources */,
 				0168906B2A0F9ECE00A61A31 /* TitleHeaderCollectionReusableView.swift in Sources */,
