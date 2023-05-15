@@ -153,7 +153,4 @@ class DishDetailsViewController: UIViewController {
             orderButton.heightAnchor.constraint(equalTo: textField.heightAnchor)
         ])
     }
-    
-    
-    // MARK: - Functions
 }

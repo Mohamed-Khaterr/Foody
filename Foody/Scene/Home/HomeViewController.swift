@@ -44,7 +44,7 @@ class HomeViewController: UIViewController {
     private func setupNavigation() {
         navigationItem.title = "Foody"
         
-        let cartButton = UIBarButtonItem(image: UIImage(systemName: "cart.fill"), style: .plain, target: self, action: nil)
+        let cartButton = UIBarButtonItem(image: UIImage(systemName: "cart.fill"), style: .plain, target: self, action: #selector(cartButtonPressed))
         cartButton.tintColor = .red
         navigationItem.rightBarButtonItem = cartButton
     }
@@ -107,6 +107,12 @@ class HomeViewController: UIViewController {
         }
     }
     
+    
+    
+    // MARK: - Button Action
+    @objc private func cartButtonPressed() {
+        navigationController?.pushViewController(OrderListTableViewController(), animated: true)
+    }
 }
 
 
