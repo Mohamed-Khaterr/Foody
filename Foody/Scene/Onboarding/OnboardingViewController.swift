@@ -123,7 +123,10 @@ class OnboardingViewController: UIViewController {
         if selectedSlide == slides.count {
             let nav = UINavigationController(rootViewController: HomeViewController())
             nav.modalPresentationStyle = .fullScreen
-            present(nav, animated: true)
+            nav.modalTransitionStyle = .flipHorizontal
+            present(nav, animated: true) {
+                UserDefaults.standard.set(true, forKey: "isSeeOnboardingPage")
+            }
         }
         
         let indexPath = IndexPath(item: selectedSlide, section: 0)
