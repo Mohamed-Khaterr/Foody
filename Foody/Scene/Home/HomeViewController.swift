@@ -59,14 +59,22 @@ class HomeViewController: UIViewController {
             collectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
         ])
         
+        let config = UICollectionViewCompositionalLayoutConfiguration()
+        config.scrollDirection = .vertical
+        
         collectionView.collectionViewLayout = UICollectionViewCompositionalLayout(sectionProvider: { index, env in
             return self.sections[index].sectionLayout()
-        })
+        }, configuration: config)
     }
     
     
     private func setupSections() {
-        sections = [FoodCategorySection(), PopularDishesSection(), ChefSpecialSection()]
+        // Sections Sequence
+        sections = [
+            FoodCategorySection(),
+            PopularDishesSection(),
+            ChefSpecialSection()
+        ]
         
         for index in sections.indices {
             // Reload Section
