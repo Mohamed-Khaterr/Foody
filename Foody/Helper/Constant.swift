@@ -10,7 +10,7 @@ import UIKit
 struct Constant {
     static let defaultImage = UIImage(named: "appIcon")
     
-    static let collectionViewSectionHeaderView = (TitleHeaderCollectionReusableView.self, UICollectionView.elementKindSectionHeader, TitleHeaderCollectionReusableView.identifier)
+    static let collectionViewSectionHeaderView = (HeaderTitleCollectionReusableView.self, UICollectionView.elementKindSectionHeader, HeaderTitleCollectionReusableView.identifier)
     
     static func collectionViewLayoutHeader(_ pin: Bool = false) ->  NSCollectionLayoutBoundarySupplementaryItem {
         let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .estimated(44))

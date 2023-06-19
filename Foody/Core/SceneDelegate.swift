@@ -18,7 +18,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         let isSeeOnboardingPage = UserDefaults.standard.bool(forKey: "isSeeOnboardingPage")
         
-        let rootVC = isSeeOnboardingPage ? HomeViewController() : OnboardingViewController()
+        let rootVC = isSeeOnboardingPage ? HomeCollectionViewController() : OnboardingViewController()
         let nav = UINavigationController(rootViewController: rootVC)
         
         window.rootViewController = nav
