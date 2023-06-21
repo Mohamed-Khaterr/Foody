@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import Combine
 
 
 class NetworkManager {
@@ -46,30 +45,5 @@ class NetworkManager {
         } catch {
             throw error
         }
-    }
-}
-
-
-
-final class NetworkManagerCombine {
-    public func request<T: Codable>(endpoint: EndPoint, method: HTTPMethod, parameters: [String: Any], type: T.Type) -> AnyPublisher<T, Error> {
-        guard let url = endpoint.url else {
-            return Fail(error: CustomError.NetworkError.invalidURL).eraseToAnyPublisher()
-        }
-        
-        let taskPublisher =  URLSession.shared.dataTaskPublisher(for: url)
-            .catch { error in
-                Fail(error: CustomError.NetworkError.responseData(error)).eraseToAnyPublisher()
-            }
-            .tryMap { output in
-                guard let response = output.response as? HTTPURLResponse, response.statusCode == 200 else {
-                    throw CustomError.NetworkError.responseStatus
-                }
-                return output.data
-            }
-            .decode(type: type.self, decoder: JSONDecoder())
-            .eraseToAnyPublisher()
-        
-        return taskPublisher
     }
 }
