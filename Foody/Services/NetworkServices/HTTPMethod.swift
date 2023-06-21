@@ -1,5 +1,5 @@
 //
-//  Method.swift
+//  HTTPMethod.swift
 //  Foody
 //
 //  Created by Khater on 5/16/23.
@@ -8,7 +8,7 @@
 import Foundation
 
 
-enum Method: String {
+enum HTTPMethod: String {
     case get = "GET"
     case post = "POST"
     case put = "PUT"

@@ -216,8 +216,7 @@ extension HomeCollectionViewController: UICollectionViewDelegateFlowLayout {
         if indexPath.section == lastSection {
             return CGSize(width: 180, height: 200)
         } else {
-            // Make Cell has full width of main view
-            // each section define it's own height which is the cell height
+            // For nested CollectionViews
             let section = sections[indexPath.section]
             return CGSize(width: view.frame.width, height: section.sectionHeight)
         }

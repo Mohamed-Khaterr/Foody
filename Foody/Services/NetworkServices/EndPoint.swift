@@ -13,7 +13,6 @@ protocol EndPoint {
 }
 
 
-
 // MARK: - FreeMealDBEndPoint
 enum FreeMealDBEndPoint: EndPoint {
     

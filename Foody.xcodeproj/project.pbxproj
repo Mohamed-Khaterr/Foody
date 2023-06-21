@@ -55,9 +55,9 @@
 		01C2F83A2A38C0B9001E045F /* FoodCategoriesSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01C2F8392A38C0B9001E045F /* FoodCategoriesSection.swift */; };
 		01C2F83D2A390032001E045F /* HomeCollectionViewControllerSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01C2F83C2A390032001E045F /* HomeCollectionViewControllerSection.swift */; };
 		01DFEC812A138E89002FC0AC /* NetworkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01DFEC802A138E89002FC0AC /* NetworkManager.swift */; };
-		01DFEC832A138E94002FC0AC /* Method.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01DFEC822A138E94002FC0AC /* Method.swift */; };
+		01DFEC832A138E94002FC0AC /* HTTPMethod.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01DFEC822A138E94002FC0AC /* HTTPMethod.swift */; };
 		01DFEC852A138F47002FC0AC /* EndPoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01DFEC842A138F47002FC0AC /* EndPoint.swift */; };
-		01DFEC872A1397A4002FC0AC /* AppError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01DFEC862A1397A4002FC0AC /* AppError.swift */; };
+		01DFEC872A1397A4002FC0AC /* CustomError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01DFEC862A1397A4002FC0AC /* CustomError.swift */; };
 		01DFEC8C2A139A7D002FC0AC /* Meal.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01DFEC8B2A139A7D002FC0AC /* Meal.swift */; };
 		01F3D8402A12262C00514C66 /* MealDetailsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01F3D83F2A12262C00514C66 /* MealDetailsViewController.swift */; };
 		01F3D8432A12396D00514C66 /* OrdersListTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01F3D8422A12396D00514C66 /* OrdersListTableViewController.swift */; };
@@ -116,9 +116,9 @@
 		01C2F8392A38C0B9001E045F /* FoodCategoriesSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoodCategoriesSection.swift; sourceTree = "<group>"; };
 		01C2F83C2A390032001E045F /* HomeCollectionViewControllerSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeCollectionViewControllerSection.swift; sourceTree = "<group>"; };
 		01DFEC802A138E89002FC0AC /* NetworkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkManager.swift; sourceTree = "<group>"; };
-		01DFEC822A138E94002FC0AC /* Method.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Method.swift; sourceTree = "<group>"; };
+		01DFEC822A138E94002FC0AC /* HTTPMethod.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTTPMethod.swift; sourceTree = "<group>"; };
 		01DFEC842A138F47002FC0AC /* EndPoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EndPoint.swift; sourceTree = "<group>"; };
-		01DFEC862A1397A4002FC0AC /* AppError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppError.swift; sourceTree = "<group>"; };
+		01DFEC862A1397A4002FC0AC /* CustomError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomError.swift; sourceTree = "<group>"; };
 		01DFEC8B2A139A7D002FC0AC /* Meal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Meal.swift; sourceTree = "<group>"; };
 		01F3D83F2A12262C00514C66 /* MealDetailsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MealDetailsViewController.swift; sourceTree = "<group>"; };
 		01F3D8422A12396D00514C66 /* OrdersListTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrdersListTableViewController.swift; sourceTree = "<group>"; };
@@ -166,8 +166,7 @@
 				012E53AE2A03396F00EB55A9 /* Core */,
 				012E53AF2A03397900EB55A9 /* Resources */,
 				012E53B02A03399300EB55A9 /* Helper */,
-				012E53B12A0339A300EB55A9 /* Network */,
-				018E656C2A34CED6008433EB /* CoreData */,
+				01BD385F2A4268880023CF63 /* Services */,
 				01C26AAD2A2F619D00902E98 /* CustomViews&Cells */,
 				012E53B22A0339B700EB55A9 /* MVVM */,
 			);
@@ -209,15 +208,14 @@
 			path = Helper;
 			sourceTree = "<group>";
 		};
-		012E53B12A0339A300EB55A9 /* Network */ = {
+		012E53B12A0339A300EB55A9 /* NetworkServices */ = {
 			isa = PBXGroup;
 			children = (
 				01DFEC802A138E89002FC0AC /* NetworkManager.swift */,
-				01DFEC822A138E94002FC0AC /* Method.swift */,
+				01DFEC822A138E94002FC0AC /* HTTPMethod.swift */,
 				01DFEC842A138F47002FC0AC /* EndPoint.swift */,
-				01DFEC862A1397A4002FC0AC /* AppError.swift */,
 			);
-			path = Network;
+			path = NetworkServices;
 			sourceTree = "<group>";
 		};
 		012E53B22A0339B700EB55A9 /* MVVM */ = {
@@ -310,14 +308,14 @@
 			name = CreateOrder;
 			sourceTree = "<group>";
 		};
-		018E656C2A34CED6008433EB /* CoreData */ = {
+		018E656C2A34CED6008433EB /* CoreDataServices */ = {
 			isa = PBXGroup;
 			children = (
 				018E65742A34D083008433EB /* CoreDataManager.swift */,
 				018E65762A34E0C2008433EB /* OrderManager.swift */,
 				018E656D2A34CEF7008433EB /* Foody.xcdatamodeld */,
 			);
-			path = CoreData;
+			path = CoreDataServices;
 			sourceTree = "<group>";
 		};
 		0191CF7F2A2E7E7B008F6037 /* CollectionViewCells */ = {
@@ -329,6 +327,16 @@
 				0191CF842A2E8D2D008F6037 /* MealCollectionViewCell.swift */,
 			);
 			path = CollectionViewCells;
+			sourceTree = "<group>";
+		};
+		01BD385F2A4268880023CF63 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				01DFEC862A1397A4002FC0AC /* CustomError.swift */,
+				018E656C2A34CED6008433EB /* CoreDataServices */,
+				012E53B12A0339A300EB55A9 /* NetworkServices */,
+			);
+			path = Services;
 			sourceTree = "<group>";
 		};
 		01C26AAD2A2F619D00902E98 /* CustomViews&Cells */ = {
@@ -492,7 +500,7 @@
 				01482F022A3A1E1700F6EC46 /* CreateOrderViewController.swift in Sources */,
 				01DFEC852A138F47002FC0AC /* EndPoint.swift in Sources */,
 				0191CF892A2EA052008F6037 /* CountriesViewModel.swift in Sources */,
-				01DFEC832A138E94002FC0AC /* Method.swift in Sources */,
+				01DFEC832A138E94002FC0AC /* HTTPMethod.swift in Sources */,
 				012E53982A03380200EB55A9 /* AppDelegate.swift in Sources */,
 				0182DC6B2A1CF48700DEB392 /* FoodCategoriesViewModel.swift in Sources */,
 				01DFEC812A138E89002FC0AC /* NetworkManager.swift in Sources */,
@@ -529,7 +537,7 @@
 				012E53B62A03408600EB55A9 /* OnboardingViewController.swift in Sources */,
 				017167A92A2F8AB60057214E /* UIImageView+Extension.swift in Sources */,
 				015395492A3FACB1005CF829 /* FoodCategoriesResponse.swift in Sources */,
-				01DFEC872A1397A4002FC0AC /* AppError.swift in Sources */,
+				01DFEC872A1397A4002FC0AC /* CustomError.swift in Sources */,
 				018E656F2A34CEF7008433EB /* Foody.xcdatamodeld in Sources */,
 				01F3D8482A123AB900514C66 /* OrderTableViewCell.swift in Sources */,
 				013F89AD2A09C8CB00F0F085 /* OnboardingCollectionViewCell.swift in Sources */,
