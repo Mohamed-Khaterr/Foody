@@ -1,5 +1,5 @@
 //
-//  OrdersListTableViewController.swift
+//  CartTableViewController.swift
 //  Foody
 //
 //  Created by Khater on 5/15/23.
@@ -10,12 +10,12 @@ import SkeletonView
 import Combine
 
 
-class OrdersListTableViewController: UITableViewController {
+class CartTableViewController: UITableViewController {
     
     
     // MARK: - Variables
-    private let viewModel = OrderListViewModel()
-    private let inputPublisher: PassthroughSubject<InputOrderList, Never> = .init()
+    private let viewModel = CartViewModel()
+    private let inputPublisher: PassthroughSubject<CartInput, Never> = .init()
     private var cancellable = Set<AnyCancellable>()
     private var isFooterAppear = false
     
@@ -24,7 +24,7 @@ class OrdersListTableViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         // Naviagation
-        navigationItem.title = "Orders"
+        navigationItem.title = "Cart"
         
         // TableView
         setupTableView()
@@ -60,7 +60,7 @@ class OrdersListTableViewController: UITableViewController {
 
 
 // MARK: - UITableViewDataSource
-extension OrdersListTableViewController {
+extension CartTableViewController {
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return viewModel.numberOfRows
     }
@@ -87,7 +87,7 @@ extension OrdersListTableViewController {
 
 
 // MARK: - UITableViewDelegate
-extension OrdersListTableViewController {
+extension CartTableViewController {
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         inputPublisher.send(.didSelectRowAt(indexPath))
     }

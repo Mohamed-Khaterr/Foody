@@ -1,5 +1,5 @@
 //
-//  CreateOrderViewModel.swift
+//  AddToCartViewModel.swift
 //  Foody
 //
 //  Created by Khater on 6/14/23.
@@ -9,7 +9,7 @@ import Foundation
 import Combine
 
 
-class CreateOrderViewModel {
+class AddToCartViewModel {
     
     enum Input {
         case viewDidLoad
@@ -30,7 +30,7 @@ class CreateOrderViewModel {
     
     // MARK: - Private Variables
     private let mealDetails: MealDetails
-    private let outputPublisher: PassthroughSubject<CreateOrderViewModel.Output, Never> = .init()
+    private let outputPublisher: PassthroughSubject<AddToCartViewModel.Output, Never> = .init()
     private var cancellable = Set<AnyCancellable>()
     
     private var username: String?
@@ -54,7 +54,7 @@ class CreateOrderViewModel {
     
     
     // MARK: - Methods
-    public func bind(input subscription: AnyPublisher<CreateOrderViewModel.Input, Never>) -> AnyPublisher<CreateOrderViewModel.Output, Never> {
+    public func bind(input subscription: AnyPublisher<AddToCartViewModel.Input, Never>) -> AnyPublisher<AddToCartViewModel.Output, Never> {
         subscription
             .receive(on: DispatchQueue.global())
             .sink { [weak self] events in

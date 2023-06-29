@@ -1,5 +1,5 @@
 //
-//  OrderListViewModel.swift
+//  CartViewModel.swift
 //  Foody
 //
 //  Created by Khater on 6/18/23.
@@ -9,10 +9,10 @@ import Foundation
 import Combine
 
 
-typealias InputOrderList = OrderListViewModel.Input
-typealias OutputOrderList = OrderListViewModel.Output
+typealias CartInput = CartViewModel.Input
+typealias CartOutput = CartViewModel.Output
 
-class OrderListViewModel {
+class CartViewModel {
     
     enum Input {
         case viewDidLoad
@@ -28,7 +28,7 @@ class OrderListViewModel {
     
     // MARK: - Private Variables
     private let orderManager: OrderManagerType
-    private let outputPublisher: PassthroughSubject<OrderListViewModel.Output, Never> = .init()
+    private let outputPublisher: PassthroughSubject<CartViewModel.Output, Never> = .init()
     private var cancellable = Set<AnyCancellable>()
     
     private var orders = [Order]()
@@ -49,7 +49,7 @@ class OrderListViewModel {
     
     
     // MARK: - Methods
-    public func bind(input subscription: AnyPublisher<InputOrderList, Never>) -> AnyPublisher<OutputOrderList, Never> {
+    public func bind(input subscription: AnyPublisher<CartInput, Never>) -> AnyPublisher<CartOutput, Never> {
         subscription
             .receive(on: DispatchQueue.global())
             .sink { [weak self] events in

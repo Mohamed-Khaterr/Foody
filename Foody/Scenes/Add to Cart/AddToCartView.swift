@@ -1,5 +1,5 @@
 //
-//  CreateOrderView.swift
+//  AddToCartView.swift
 //  Foody
 //
 //  Created by Khater on 6/14/23.
@@ -8,14 +8,14 @@
 import UIKit
 
 
-@objc protocol CreateOrderViewDelegate: AnyObject {
+@objc protocol AddToCartViewDelegate: AnyObject {
     func orderButtonPressed()
     func plusButtonPressed()
     func minusButtonPressed()
 }
 
 
-class CreateOrderView: UIView {
+class AddToCartView: UIView {
     
     // MARK: - UIComponents
     private let mealImageView: UIImageView = {
@@ -196,7 +196,7 @@ class CreateOrderView: UIView {
     
     
     // MARK: - Setters
-    public weak var delegate: CreateOrderViewDelegate? {
+    public weak var delegate: AddToCartViewDelegate? {
         didSet {
             orderButton.addTarget(delegate, action: #selector(delegate?.orderButtonPressed), for: .touchUpInside)
             plusButton.addTarget(delegate, action: #selector(delegate?.plusButtonPressed), for: .touchUpInside)

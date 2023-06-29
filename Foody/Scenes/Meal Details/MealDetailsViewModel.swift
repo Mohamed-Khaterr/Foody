@@ -22,7 +22,7 @@ final class MealDetailsViewModel {
     enum Output {
         case skeletonAnimation(isAnimating: Bool)
         case uiUpdateWithDetails(_ details: MealDetails, youtubeVideoRequest: URLRequest)
-        case goToCreateOrderVC(_ vc: CreateOrderViewController)
+        case goToCreateOrderVC(_ vc: AddToCartViewController)
         case error(title: String, message: String)
     }
     
@@ -59,7 +59,7 @@ final class MealDetailsViewModel {
                 
             case .placeOrderButtonPressed:
                 guard let mealDetails = self.mealDetails else { return }
-                let createOrderVC = CreateOrderViewController(meal: mealDetails)
+                let createOrderVC = AddToCartViewController(meal: mealDetails)
                 self.outputPublisher.send(.goToCreateOrderVC(createOrderVC))
             }
         }

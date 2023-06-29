@@ -1,5 +1,5 @@
 //
-//  CreateOrderViewController.swift
+//  AddToCartViewController.swift
 //  Foody
 //
 //  Created by Khater on 6/14/23.
@@ -9,18 +9,18 @@ import UIKit
 import Combine
 
 
-class CreateOrderViewController: UIViewController {
+class AddToCartViewController: UIViewController {
     
     
     // MARK: - Variables
-    private let mainView = CreateOrderView()
-    private let viewModel: CreateOrderViewModel
-    private let inputPublisher: PassthroughSubject<CreateOrderViewModel.Input, Never> = .init()
+    private let mainView = AddToCartView()
+    private let viewModel: AddToCartViewModel
+    private let inputPublisher: PassthroughSubject<AddToCartViewModel.Input, Never> = .init()
     private var cancelllable = Set<AnyCancellable>()
     
     
     init(meal: MealDetails) {
-        viewModel = CreateOrderViewModel(mealDetails: meal)
+        viewModel = AddToCartViewModel(mealDetails: meal)
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -102,7 +102,7 @@ class CreateOrderViewController: UIViewController {
 
 
 // MARK: - UITextFieldDelegate
-extension CreateOrderViewController: UITextFieldDelegate {
+extension AddToCartViewController: UITextFieldDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         inputPublisher.send(.usernametextFieldReturnButtonPressed(mainView.username))
         textField.endEditing(true)
@@ -113,7 +113,7 @@ extension CreateOrderViewController: UITextFieldDelegate {
 
 
 // MARK: - CreateOrderViewDelegate
-extension CreateOrderViewController: CreateOrderViewDelegate {
+extension AddToCartViewController: AddToCartViewDelegate {
     func orderButtonPressed() {
         inputPublisher.send(.usernametextFieldReturnButtonPressed(mainView.username))
         inputPublisher.send(.orderButtonPressed)

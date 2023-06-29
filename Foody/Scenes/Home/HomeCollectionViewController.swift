@@ -118,7 +118,7 @@ class HomeCollectionViewController: UICollectionViewController {
     
     // MARK: - NavigationItem Bar Buttons
     @objc private func cartBarButtonPressed() {
-        navigationController?.pushViewController(OrdersListTableViewController(), animated: true)
+        navigationController?.pushViewController(CartTableViewController(), animated: true)
     }
     
     @objc private func searchBarButtonPressed() {

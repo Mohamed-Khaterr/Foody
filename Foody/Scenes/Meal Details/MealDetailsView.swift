@@ -8,7 +8,6 @@
 import UIKit
 import WebKit
 import SkeletonView
-import Combine
 
 
 @objc protocol MealDetailsViewDelegate: AnyObject {
