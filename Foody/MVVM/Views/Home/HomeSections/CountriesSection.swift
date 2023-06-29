@@ -2,18 +2,23 @@
 //  CountriesSection.swift
 //  Foody
 //
-//  Created by Khater on 6/12/23.
+//  Created by Khater on 6/21/23.
 //
 
 import UIKit
+import Combine
 
 
 
 class CountriesSection: UICollectionView {
     
     // MARK: - Variables
+    var navigationControllerPushVC: ((UIViewController) -> Void)? // from HomeCollectionViewControllerSection
+    var presentVC: ((UIViewController) -> Void)? // from HomeCollectionViewControllerSection
+    
     private let viewModel = CountriesViewModel()
-    var pushViewController: ((UIViewController) -> Void)? // from HomeCollectionViewControllerSection
+    private var viewModelSubscriber: AnyCancellable?
+    private let inputPublisher: PassthroughSubject<CountriesViewModel.Input, Never> = .init()
     
     
     // MARK: - init
@@ -21,18 +26,6 @@ class CountriesSection: UICollectionView {
         let flowLayout = UICollectionViewFlowLayout()
         flowLayout.scrollDirection = .horizontal
         super.init(frame: frame, collectionViewLayout: flowLayout)
-        
-        // Appearnce
-        showsHorizontalScrollIndicator = false
-
-        
-        // Register Cell
-        register(CountryCollectionViewCell.self, forCellWithReuseIdentifier: CountryCollectionViewCell.identifier)
-        
-        
-        // Set the protocols
-        delegate = self
-        dataSource = self
     }
     
     required init?(coder: NSCoder) {
@@ -54,11 +47,46 @@ extension CountriesSection: HomeCollectionViewControllerSection {
         return "Countries"
     }
     
+    func sectionHeaderButtonTapped() {
+        navigationControllerPushVC?(CountriesCollectionViewController())
+    }
+    
     func viewDidLoad() {
-        viewModel.fetchCountries()
-        viewModel.reloadData = { [weak self] in
-            self?.reloadData()
-        }
+        configurarCollectionView()
+        bindViewModel()
+        inputPublisher.send(.viewDidLoad)
+        inputPublisher.send(.limitCountries(true))
+    }
+    
+    private func configurarCollectionView() {
+        // Appearnce
+        showsHorizontalScrollIndicator = false
+        
+        // Register Cell
+        register(CountryCollectionViewCell.self, forCellWithReuseIdentifier: CountryCollectionViewCell.identifier)
+        
+        // Set the protocols
+        delegate = self
+        dataSource = self
+    }
+    
+    private func bindViewModel() {
+        viewModelSubscriber = viewModel.bind(input: inputPublisher.eraseToAnyPublisher())
+            .sink { [weak self] output in
+                guard let self = self else { return }
+                switch output {
+                case .reloadData:
+                    self.reloadData()
+                    
+                case .navigateToCountryMeals(let vc):
+                    self.navigationControllerPushVC?(vc)
+                    
+                case .errorOccur(title: let title, message: let message):
+                    let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+                    alert.addAction(UIAlertAction(title: "Close", style: .cancel))
+                    self.presentVC?(alert)
+                }
+            }
     }
 }
 
@@ -72,10 +100,9 @@ extension CountriesSection: UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CountryCollectionViewCell.identifier, for: indexPath) as! CountryCollectionViewCell
-        cell.skeletonView(show: viewModel.isSkeletonAnimating)
-        if let country = viewModel.itemAt(indexPath) {
-            cell.setValues(country)
-        }
+        cell.skeletonView(viewModel.isAnimating)
+        let country = viewModel.itemForCell(at: indexPath)
+        cell.setCountry(country)
         return cell
     }
 }
@@ -85,9 +112,7 @@ extension CountriesSection: UICollectionViewDataSource {
 // MARK: - UICollectionViewDelegate
 extension CountriesSection: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        viewModel.didSelectItemAt(indexPath) { [weak self] mealsVC in
-            self?.pushViewController?(mealsVC)
-        }
+        inputPublisher.send(.selectContryAt(indexPath))
     }
 }
 

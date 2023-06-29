@@ -21,6 +21,7 @@ class OnboardingViewController: UIViewController {
         collectionView.isPagingEnabled = true
         collectionView.showsVerticalScrollIndicator = false
         collectionView.showsHorizontalScrollIndicator = false
+        collectionView.backgroundColor = .white
         collectionView.register(OnboardingCollectionViewCell.self, forCellWithReuseIdentifier: OnboardingCollectionViewCell.identifier)
         return collectionView
     }()

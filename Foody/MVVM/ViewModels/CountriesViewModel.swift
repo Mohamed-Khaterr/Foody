@@ -6,57 +6,112 @@
 //
 
 import Foundation
+import Combine
 
 
 final class CountriesViewModel {
     
-    // MARK: - Public Variables
-    public var reloadData: (() -> Void)?
+    enum Input {
+        case viewDidLoad
+        case limitCountries(_ isLimitCountries: Bool)
+        case selectContryAt(_ indexPath: IndexPath)
+    }
     
-    public private(set) var isSkeletonAnimating = false
-    
-    public var numberOfItems: Int {
-        // 3 is to create 3 cells with SkeletonViewAnimation
-        return countries.isEmpty ? 3 : countries.count
+    enum Output {
+        case reloadData
+        case navigateToCountryMeals(_ vc: MealsCollectionViewController)
+        case errorOccur(title: String, message: String)
     }
     
     
+    // MARK: - Public Variables
+    public var numberOfItems: Int {
+        return countries.count
+    }
+    
+    public func itemForCell(at indexPath: IndexPath) -> Country {
+        return countries[indexPath.row]
+    }
+    
+    public private(set) var isAnimating = false
+    
     
     // MARK: - Private Variables
-    private var countries = [Country]() {
-        didSet {
-            DispatchQueue.main.async {
-                self.reloadData?()
-            }
-        }
+    private let network: NetworkManagerType
+    private var networkSubscriber: AnyCancellable?
+    
+    private let outputPublisher: PassthroughSubject<Output, Never> = .init()
+    private var cancellables = Set<AnyCancellable>()
+    
+    private var countries: [Country] = [Country(name: "Loading"), Country(name: "Loading"), Country(name: "Loading")]
+    private var isLimitCountries = false
+    
+    
+    init(network: NetworkManagerType = NetworkManager()) {
+        self.network = network
+    }
+    
+    deinit {
+        print("deinit: CountriesViewModel")
     }
     
     
     // MARK: - Methods
-    public func itemAt(_ indexPath: IndexPath) -> Country? {
-        return countries.isEmpty ? nil : countries[indexPath.row]
-    }
-    
-    public func didSelectItemAt(_ indexPath: IndexPath, completionHandler: @escaping (MealsCollectionViewController) -> Void) {
-        if countries.isEmpty { return }
-        let country = countries[indexPath.row]
-        let mealsVC = MealsCollectionViewController(in: .country(country.name))
-        DispatchQueue.main.async {
-            completionHandler(mealsVC)
-        }
-    }
-    
-    
-    public func fetchCountries() {
-        isSkeletonAnimating = true
-        Task {
-            do {
-                let countriesResponse = try await NetworkManager.shared.request(endpoint: FreeMealDBEndPoint.list, method: .get, parameters: ["a":"list"], type: CountriesResponse.self)
-                countries = countriesResponse.countries
-                isSkeletonAnimating = false
-            } catch {
-                print("Error: \(error)")
+    public func bind(input subscription: AnyPublisher<Input, Never>) -> AnyPublisher<Output, Never> {
+        subscription.sink { [weak self] events in
+            guard let self = self else { return }
+            // Handle View inputs
+            switch events {
+            case .viewDidLoad:
+                self.fetchCountries()
+                
+            case .limitCountries(let isLimitCountries):
+                self.isLimitCountries = isLimitCountries
+                self.fetchCountries()
+                
+            case .selectContryAt(let indexPath):
+                let country = self.countries[indexPath.row]
+                let countryMealsVC = MealsCollectionViewController(in: .country(country.name))
+                outputPublisher.send(.navigateToCountryMeals(countryMealsVC))
             }
+        }
+        .store(in: &cancellables)
+        
+        return outputPublisher.eraseToAnyPublisher()
+    }
+    
+    
+    
+    private func fetchCountries() {
+        isAnimating = true
+        do {
+            let requst = try network.createURLRequest(endpoint: MealDBEndpoint.list, method: .get, parameters: ["a": "list"])
+            
+            // Handle Network Response
+            networkSubscriber?.cancel()
+            networkSubscriber = network.request(with: requst, type: CountriesResponse.self)
+                .map(\.countries)
+                .map({ [weak self] countries in
+                    guard let self = self else { return countries }
+                    return self.isLimitCountries ? countries.prefix(4).map({$0}) : countries
+                })
+                .receive(on: DispatchQueue.main)
+                .sink { [weak self] completion in
+                    switch completion {
+                    case .finished:
+                        self?.isAnimating = false
+                        self?.outputPublisher.send(.reloadData)
+                        
+                    case .failure(let error):
+                        self?.outputPublisher.send(.errorOccur(title: "Network", message: error.localizedDescription))
+                    }
+                } receiveValue: { [weak self] countries in
+                    guard let self = self else { return }
+                    self.countries = countries
+                }
+
+        } catch {
+            outputPublisher.send(.errorOccur(title: "URL Request", message: error.localizedDescription))
         }
     }
 }

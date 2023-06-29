@@ -10,27 +10,28 @@ import Foundation
 
 enum CustomError {
     
-    enum CoreDataError: LocalizedError {
-        case persistentStoresLoading, saveContext
+    enum CoreData: LocalizedError {
+        case persistentStoresError, contextError
         
         var errorDescription: String? {
             switch self {
-            case .persistentStoresLoading: return "Unable to load persistent stores"
-            case .saveContext: return "Can't Save current change!"
+            case .persistentStoresError: return "Unable to load persistent stores"
+            case .contextError: return "Can't Save current change!"
             }
         }
     }
     
-    enum NetworkError: LocalizedError {
-        case invalidURL, responseData(Error), responseStatus, encodeParameters, decode(classType: AnyObject)
+    enum Network: LocalizedError {
+        case badURL, responseFail(_ error: Error), noConnectionError(_ error: Error), serverError, encodeError(_ parameters: [String:Any]), decodeError(_ error: Error)
         
         var errorDescription: String? {
             switch self {
-            case .invalidURL: return "Invalide URL!"
-            case .responseData(let error): return "Server response with error: \(error.localizedDescription)"
-            case .responseStatus: return "The server is not working right now"
-            case .encodeParameters: return "Can't encode parameters!"
-            case .decode(let classType): return "Can't decode \(String(describing: type(of: classType)))"
+            case .badURL: return "Bad url!"
+            case .responseFail(let error): return "Response Fail with error: \(error.localizedDescription)"
+            case .noConnectionError(let error): return "Connection fail \(error.localizedDescription)"
+            case .serverError: return "The server is not working right now"
+            case .encodeError(let parameters): return "Can't encode parameters: \(parameters.description)"
+            case .decodeError(let error): return "Can't decode \(error.localizedDescription)"
             }
         }
     }

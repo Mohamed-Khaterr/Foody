@@ -6,13 +6,15 @@
 //
 
 import UIKit
+import Combine
 
 
 class CountriesCollectionViewController: UICollectionViewController {
     
     // MARK: - Variables
     private let viewModel = CountriesViewModel()
-    
+    private var cancellable = Set<AnyCancellable>()
+    private let inputPublisher: PassthroughSubject<CountriesViewModel.Input, Never> = .init()
     
     
     
@@ -25,6 +27,10 @@ class CountriesCollectionViewController: UICollectionViewController {
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    deinit {
+        print("deinit: CountriesCollectionViewController")
     }
     
     
@@ -41,10 +47,27 @@ class CountriesCollectionViewController: UICollectionViewController {
         
         
         // Setup ViewModle
-        viewModel.fetchCountries()
-        viewModel.reloadData = { [weak self] in
-            self?.collectionView.reloadData()
-        }
+        bind()
+        inputPublisher.send(.viewDidLoad)
+    }
+    
+    private func bind() {
+        viewModel.bind(input: inputPublisher.eraseToAnyPublisher())
+            .sink { [unowned self] events in
+                switch events {
+                case .reloadData:
+                    self.collectionView.reloadData()
+                    
+                case .navigateToCountryMeals(let vc):
+                    self.navigationController?.pushViewController(vc, animated: true)
+                    
+                case .errorOccur(title: let title, message: let message):
+                    let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+                    alert.addAction(UIAlertAction(title: "Close", style: .cancel))
+                    self.present(alert, animated: true)
+                }
+            }
+            .store(in: &cancellable)
     }
 }
 
@@ -52,21 +75,14 @@ class CountriesCollectionViewController: UICollectionViewController {
 
 // MARK: - UICollectionViewDataSource
 extension CountriesCollectionViewController {
-    override func numberOfSections(in collectionView: UICollectionView) -> Int {
-        return 1
-    }
-
-
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return viewModel.numberOfItems
     }
 
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CountryCollectionViewCell.identifier, for: indexPath) as! CountryCollectionViewCell
-        cell.skeletonView(show: viewModel.isSkeletonAnimating)
-        if let country = viewModel.itemAt(indexPath) {
-            cell.setValues(country)
-        }
+        let country = viewModel.itemForCell(at: indexPath)
+        cell.setCountry(country)
         return cell
     }
 }
@@ -76,9 +92,7 @@ extension CountriesCollectionViewController {
 // MARK: - UICollectionViewDelegate
 extension CountriesCollectionViewController {
     override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        viewModel.didSelectItemAt(indexPath) { [weak self] vc in
-            self?.navigationController?.pushViewController(vc, animated: true)
-        }
+        inputPublisher.send(.selectContryAt(indexPath))
     }
 }
 

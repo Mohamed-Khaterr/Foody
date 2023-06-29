@@ -8,6 +8,7 @@
 import UIKit
 import WebKit
 import SkeletonView
+import Combine
 
 
 @objc protocol MealDetailsViewDelegate: AnyObject {
@@ -105,13 +106,6 @@ final class MealDetailsView: UIView {
     
     
     // MARK: - init
-//    override init(frame: CGRect) {
-//        super.init(frame: frame)
-//        backgroundColor = .white
-//        setupLayout()
-//        [mealImageView, tagsLabel, categoryLabel, mealInstructionsLabel, youtubeVideoWebView].forEach({ $0.isSkeletonable = true })
-//    }
-    
     init(showPlaceOrderButton: Bool) {
         super.init(frame: .zero)
         backgroundColor = .white
@@ -231,8 +225,8 @@ final class MealDetailsView: UIView {
         }
     }
     
-    func skeletonView(show: Bool) {
-        if show {
+    func skeletonAnimation(isAnimating: Bool) {
+        if isAnimating {
             [mealImageView, tagsLabel, categoryLabel, mealInstructionsLabel, youtubeVideoWebView].forEach({ $0.showAnimatedGradientSkeleton() })
         } else {
             [mealImageView, tagsLabel, categoryLabel, mealInstructionsLabel].forEach({ $0.hideSkeleton() })
@@ -244,15 +238,31 @@ final class MealDetailsView: UIView {
     }
     
     // MARK: - Setter
-    func setData(_ meal: MealDetails) {
-        mealImageView.setImage(meal.image)
-        tagsLabel.text = meal.tags
-        categoryLabel.text = meal.category
-        mealInstructionsLabel.text = meal.instructions
+    public var image: String = "" {
+        didSet{
+            mealImageView.setImage(image)
+        }
     }
     
-    func setYoutubeVideo(with requet: URLRequest) {
+    public var tags: String? = nil {
+        didSet {
+            tagsLabel.text = tags
+        }
+    }
+    
+    public var category: String? = nil {
+        didSet {
+            categoryLabel.text = category
+        }
+    }
+    
+    public var instructions: String? = nil {
+        didSet {
+            mealInstructionsLabel.text = instructions
+        }
+    }
+    
+    func loadYoutubeVideo(with requet: URLRequest) {
         youtubeVideoWebView.load(requet)
     }
-    
 }

@@ -6,56 +6,119 @@
 //
 
 import Foundation
+import Combine
 
 
-class FoodCategoriesViewModel {
+final class FoodCategoriesViewModel {
     
-    // MARK: - Public Variables
-    public var reloadData: (()->Void)?
+    enum Input {
+        case viewDidLoad
+        case limitItems(_ isLimited: Bool)
+        case didSelectItemAt(_ indexPath: IndexPath)
+    }
     
-    public private(set) var isSkeletonAnimating: Bool = false
+    enum Output {
+        case reloadData
+        case error(title: String, message: String)
+        case navigateToCategoryMeals(_ vc: MealsCollectionViewController)
+    }
     
+    
+    
+    // MARK: - Variables
+    private let network: NetworkManagerType
+    private var networkSubscirber: AnyCancellable?
+    private let outputPublisher: PassthroughSubject<FoodCategoriesViewModel.Output, Never> = .init()
+    private var cancellable = Set<AnyCancellable>()
+    
+    private var foodCategories: [FoodCategory] = [
+        FoodCategory(id: "", name: "Loading", description: "", image: ""),
+        FoodCategory(id: "", name: "Loading", description: "", image: ""), FoodCategory(id: "", name: "Loading", description: "", image: "")
+    ]
+    
+    private var isLimitedCategories = false
+    
+    
+    
+    // MARK: - CollectionView Data
     public var numberOfItems: Int {
-        // return 3 if it's empty to create 3 cells with SkeletonViewAnimation
-        return categories.isEmpty ? 3 : categories.count
+        return foodCategories.count
     }
     
-   
-    
-    // MARK: - Private Variables
-    private var categories = [FoodCategory]() {
-        didSet {
-            DispatchQueue.main.async {
-                self.reloadData?()
-            }
-        }
+    public func itemForCell(at indexPath: IndexPath) -> FoodCategory {
+        return foodCategories[indexPath.row]
     }
+    
+    public private(set) var isAnimating = false
+    
+    
+    
+    // MARK: - Init
+    init(network: NetworkManagerType = NetworkManager()) {
+        self.network = network
+    }
+    
+    deinit {
+        print("deinit: FoodCategoriesViewModel")
+    }
+    
     
     
     // MARK: - Methods
-    public func itemAt(_ indexPath: IndexPath) -> FoodCategory? {
-        return categories.isEmpty ? nil : categories[indexPath.row]
-    }
-    
-    public func didSelectItemAt(_ indexPath: IndexPath, completionHandler: @escaping (MealsCollectionViewController) -> Void) {
-        if categories.isEmpty { return }
-        let category = categories[indexPath.row]
-        let mealsVC = MealsCollectionViewController(in: .category(category.name))
-        DispatchQueue.main.async {
-            completionHandler(mealsVC)
-        }
-    }
-    
-    public func fetchFoodCategories() {
-        isSkeletonAnimating = true
-        Task {
-            do {
-                let foodCategoriesResponse = try await NetworkManager.shared.request(endpoint: FreeMealDBEndPoint.categories, method: .get, parameters: [:], type: FoodCategoriesResponse.self)
-                categories = foodCategoriesResponse.categories
-                isSkeletonAnimating = false
-            } catch {
-                print(error)
+    public func bind(ViewInput subscription: AnyPublisher<FoodCategoriesViewModel.Input, Never>) -> AnyPublisher<FoodCategoriesViewModel.Output, Never> {
+        subscription.sink { [weak self] events in
+            guard let self = self else { return }
+            switch events {
+            case .viewDidLoad:
+                self.fetchFoodCategories()
+                
+            case .limitItems(let isLimited):
+                self.isLimitedCategories = isLimited
+                self.fetchFoodCategories()
+                
+            case .didSelectItemAt(let indexPath):
+                let category = self.foodCategories[indexPath.row]
+                let mealsVC = MealsCollectionViewController(in: .category(category.name))
+                outputPublisher.send(.navigateToCategoryMeals(mealsVC))
             }
+        }
+        .store(in: &cancellable)
+        
+        return outputPublisher.eraseToAnyPublisher()
+    }
+    
+    
+    private func fetchFoodCategories() {
+        isAnimating = true
+
+        do {
+            let request = try network.createURLRequest(endpoint: MealDBEndpoint.categories, method: .get, parameters: ["a":"s"])
+            
+            networkSubscirber?.cancel()
+            networkSubscirber = nil
+            networkSubscirber = network.request(with: request, type: FoodCategoriesResponse.self)
+                .map(\.categories)
+                .map({ [weak self] categories in
+                    guard let self = self else { return categories }
+                    return self.isLimitedCategories ? categories.prefix(5).map({$0}) : categories
+                })
+                .receive(on: DispatchQueue.main)
+                .sink { [weak self] completion in
+                    switch completion {
+                    case .finished:
+                        self?.isAnimating = false
+                        self?.outputPublisher.send(.reloadData)
+                        
+                    case .failure(let error):
+                        self?.outputPublisher.send(.error(title: "Network", message: error.localizedDescription))
+                    }
+                    
+                } receiveValue: { [weak self] foodCategories in
+                    self?.foodCategories = foodCategories
+                }
+            
+        } catch {
+            outputPublisher.send(.error(title: "URL Request", message: error.localizedDescription))
         }
     }
 }

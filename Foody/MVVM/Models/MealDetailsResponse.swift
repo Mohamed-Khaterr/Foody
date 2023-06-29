@@ -9,7 +9,7 @@ import Foundation
 
 
 struct MealDetailsResponse: Codable {
-    let mealsDetails: [MealDetails]?
+    let mealsDetails: [MealDetails]
     
     enum CodingKeys: String, CodingKey {
         case mealsDetails = "meals"

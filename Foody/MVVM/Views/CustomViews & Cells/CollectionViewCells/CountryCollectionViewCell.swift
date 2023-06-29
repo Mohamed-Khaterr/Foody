@@ -34,7 +34,6 @@ final class CountryCollectionViewCell: UICollectionViewCell {
     }
     
     
-    
     // MARK: - Functions
     private func setupView() {
         backgroundColor = .systemGray5
@@ -53,12 +52,12 @@ final class CountryCollectionViewCell: UICollectionViewCell {
         ])
     }
     
-    public func setValues(_ country: Country) {
+    public func setCountry(_ country: Country) {
         countryNameLabel.text = country.name
     }
     
-    public func skeletonView(show: Bool) {
-        if show {
+    public func skeletonView(_ isEnable: Bool) {
+        if isEnable {
             showAnimatedGradientSkeleton()
         } else {
             hideSkeleton()

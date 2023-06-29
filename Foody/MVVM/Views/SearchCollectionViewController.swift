@@ -6,7 +6,7 @@
 //
 
 import UIKit
-
+import Combine
 
 
 class SearchCollectionViewController: UICollectionViewController {
@@ -26,8 +26,11 @@ class SearchCollectionViewController: UICollectionViewController {
     
     
     // MARK: - Variables
-    private let footerReuseIdentifier = "Cell"
+    private let footerReuseIdentifier = "footerViewCell"
+    private var isCollectionViewFooterAppear = false
     private let viewModel = SearchViewModel()
+    private let inputPublisher: PassthroughSubject<SearchViewModel.Input, Never> = .init()
+    private var outputSubscirber: AnyCancellable?
     
     
     
@@ -46,22 +49,19 @@ class SearchCollectionViewController: UICollectionViewController {
         fatalError("init(coder:) has not been implemented")
     }
     
+    deinit {
+        print("deinit: SearchCollectionViewController")
+    }
+    
     
     
     
     // MARK: - Life Cycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        // Register cell classes
-        self.collectionView!.register(MealCollectionViewCell.self, forCellWithReuseIdentifier: MealCollectionViewCell.identifier)
-        self.collectionView.register(UICollectionReusableView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionFooter, withReuseIdentifier: footerReuseIdentifier)
-        
+        setupCollectionView()
         setupNavigationBar()
-        
-        viewModel.relaodData = { [weak self] in
-            self?.collectionView.reloadData()
-        }
+        bindWithViewModel()
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -84,6 +84,35 @@ class SearchCollectionViewController: UICollectionViewController {
         navigationItem.titleView = searchBar
     }
     
+    private func setupCollectionView() {
+        // Register cell classes
+        self.collectionView!.register(MealCollectionViewCell.self, forCellWithReuseIdentifier: MealCollectionViewCell.identifier)
+        self.collectionView.register(UICollectionReusableView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionFooter, withReuseIdentifier: footerReuseIdentifier)
+    }
+    
+    private func bindWithViewModel() {
+        outputSubscirber = viewModel.bind(input: inputPublisher.eraseToAnyPublisher())
+            .sink { [weak self] output in
+                guard let self = self else { return }
+                switch output {
+                case .reloadData:
+                    self.collectionView.reloadData()
+                    
+                case .footerAppear(let isAppear):
+                    self.isCollectionViewFooterAppear = isAppear
+                
+                case .goToMealDetailsVC(let mealDetailsVC):
+                    self.navigationController?.pushViewController(mealDetailsVC, animated: true)
+                    
+                case .error(let title, let message):
+                    let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+                    alert.addAction(UIAlertAction(title: "Close", style: .cancel))
+                    self.present(alert, animated: true)
+                    
+                }
+            }
+    }
+    
     
     // MARK: - NavigationItem Bar Buttons
     @objc private func cancelBarButtonPressed() {
@@ -93,7 +122,7 @@ class SearchCollectionViewController: UICollectionViewController {
     // MARK: - SeachBar Actions
     @objc private func searchBarTextChange() {
         guard let text = searchBar.text else { return }
-        viewModel.search(text)
+        inputPublisher.send(.searchTextFieldDidChange(text))
     }
     
     @objc private func searchBarSearchButtonPressed() {
@@ -105,18 +134,15 @@ class SearchCollectionViewController: UICollectionViewController {
 
 // MARK: - UICollectionViewDataSource
 extension SearchCollectionViewController {
-    override func numberOfSections(in collectionView: UICollectionView) -> Int {
-        return 1
-    }
-
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return viewModel.numberOfItems
     }
 
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: MealCollectionViewCell.identifier, for: indexPath) as! MealCollectionViewCell
-        let meal = viewModel.itemAt(indexPath)
-        cell.setValues(.init(id: meal.id, name: meal.name, image: meal.image))
+        cell.skeletonView(show: viewModel.isItemAnimating)
+        let meal = viewModel.itemForCell(at: indexPath)
+        cell.setMeal(meal)
         return cell
     }
     
@@ -139,20 +165,14 @@ extension SearchCollectionViewController {
 // MARK: UICollectionViewDelegate
 extension SearchCollectionViewController {
     override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        viewModel.didSelectItemAt(indexPath) { [weak self] vc in
-            self?.navigationController?.pushViewController(vc, animated: true)
-        }
+        inputPublisher.send(.didSelectItemAt(indexPath))
     }
 }
 
 
 // MARK: - UICollectionViewDelegateFlowLayout
 extension SearchCollectionViewController: UICollectionViewDelegateFlowLayout {
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return CGSize(width: 180, height: 200)
-    }
-    
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForFooterInSection section: Int) -> CGSize {
-        return viewModel.isNoResult ? CGSize(width: collectionView.frame.width, height: 44) : .zero
+        return isCollectionViewFooterAppear ? CGSize(width: collectionView.frame.width, height: 44) : .zero
     }
 }

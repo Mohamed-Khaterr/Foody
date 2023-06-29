@@ -6,15 +6,18 @@
 //
 
 import UIKit
+import Combine
 
 
 
 class FoodCategoriesSection: UICollectionView {
     
     // MARK: - Variables
+    var navigationControllerPushVC: ((UIViewController) -> Void)? // from HomeCollectionViewControllerSection
+    var presentVC: ((UIViewController) -> Void)? // from HomeCollectionViewControllerSection
     private let viewModel = FoodCategoriesViewModel()
-    var pushViewController: ((UIViewController) -> Void)? // from HomeCollectionViewControllerSection
-    
+    private let inputPublisher: PassthroughSubject<FoodCategoriesViewModel.Input, Never> = .init()
+    private var cancellable = Set<AnyCancellable>()
     
     
     // MARK: - init
@@ -22,19 +25,6 @@ class FoodCategoriesSection: UICollectionView {
         let flowLayout = UICollectionViewFlowLayout()
         flowLayout.scrollDirection = .horizontal
         super.init(frame: frame, collectionViewLayout: flowLayout)
-        
-        // Appearnce
-        showsHorizontalScrollIndicator = false
-        clipsToBounds = false // To Make shadow of CardView in Cell appear
-        
-        
-        // Register Cell
-        register(FoodCategoryCollectionViewCell.self, forCellWithReuseIdentifier: FoodCategoryCollectionViewCell.identifier)
-        
-        
-        // Set the protocols
-        delegate = self
-        dataSource = self
     }
     
     required init?(coder: NSCoder) {
@@ -55,11 +45,47 @@ extension FoodCategoriesSection: HomeCollectionViewControllerSection {
         return "Food Categories"
     }
     
+    func sectionHeaderButtonTapped() {
+        navigationControllerPushVC?(FoodCategoriesCollectionViewController())
+    }
+    
     func viewDidLoad() {
-        viewModel.fetchFoodCategories()
-        viewModel.reloadData = { [weak self] in
-            self?.reloadData()
-        }
+        configurarCollectionView()
+        bind()
+        inputPublisher.send(.viewDidLoad)
+        inputPublisher.send(.limitItems(true))
+    }
+    
+    private func configurarCollectionView() {
+        // Register Cell
+        register(FoodCategoryCollectionViewCell.self, forCellWithReuseIdentifier: FoodCategoryCollectionViewCell.identifier)
+        
+        // Set the protocols
+        delegate = self
+        dataSource = self
+        
+        // Appearnce
+        showsHorizontalScrollIndicator = false
+        clipsToBounds = false // To Make shadow of CardView in Cell appear
+    }
+    
+    private func bind() {
+        viewModel.bind(ViewInput: inputPublisher.eraseToAnyPublisher())
+            .sink { [weak self] output in
+                switch output {
+                case .reloadData:
+                    self?.reloadData()
+                    
+                case .error(let title, let message):
+                    let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+                    alert.addAction(UIAlertAction(title: "Close", style: .cancel))
+                    self?.presentVC?(alert)
+                    
+                case .navigateToCategoryMeals(let mealsVC):
+                    self?.navigationControllerPushVC?(mealsVC)
+                }
+            }
+            .store(in: &cancellable)
     }
 }
 
@@ -73,10 +99,9 @@ extension FoodCategoriesSection: UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: FoodCategoryCollectionViewCell.identifier, for: indexPath) as! FoodCategoryCollectionViewCell
-        cell.skeletonView(show: viewModel.isSkeletonAnimating)
-        if let category = viewModel.itemAt(indexPath) {
-            cell.setValues(category)
-        }
+        cell.skeletonView(viewModel.isAnimating)
+        let category = viewModel.itemForCell(at: indexPath)
+        cell.setFoodCategory(category)
         return cell
     }
 }
@@ -86,9 +111,7 @@ extension FoodCategoriesSection: UICollectionViewDataSource {
 // MARK: - UICollectionViewDelegate
 extension FoodCategoriesSection: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        viewModel.didSelectItemAt(indexPath) { [weak self] vc in
-            self?.pushViewController?(vc)
-        }
+        inputPublisher.send(.didSelectItemAt(indexPath))
     }
 }
 

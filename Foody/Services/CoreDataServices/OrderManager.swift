@@ -8,7 +8,14 @@
 import Foundation
 
 
-final class OrderManager: CoreDataManager {
+protocol OrderManagerType {
+    func createOrder(_ data: Order.Dependency)
+    func fetchOrders() -> [Order]
+    func deleteOrder(_ order: Order)
+}
+
+
+final class OrderManager: CoreDataManager, OrderManagerType {
     
     func createOrder(_ data: Order.Dependency) {
         // Create new Order

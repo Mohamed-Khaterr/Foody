@@ -7,6 +7,7 @@
 
 import UIKit
 import SkeletonView
+import Combine
 
 
 class OrdersListTableViewController: UITableViewController {
@@ -14,6 +15,9 @@ class OrdersListTableViewController: UITableViewController {
     
     // MARK: - Variables
     private let viewModel = OrderListViewModel()
+    private let inputPublisher: PassthroughSubject<InputOrderList, Never> = .init()
+    private var cancellable = Set<AnyCancellable>()
+    private var isFooterAppear = false
     
     
     // MARK: - Life Cycle
@@ -23,14 +27,34 @@ class OrdersListTableViewController: UITableViewController {
         navigationItem.title = "Orders"
         
         // TableView
-        tableView.separatorStyle = .none
-        tableView.register(OrderTableViewCell.self, forCellReuseIdentifier: OrderTableViewCell.identifier)
+        setupTableView()
         
         // ViewModel
-        viewModel.viewDidLoad()
-        viewModel.reloadData = { [weak self] in
-            self?.tableView.reloadData()
-        }
+        bind()
+        inputPublisher.send(.viewDidLoad)
+    }
+    
+    private func setupTableView() {
+        tableView.separatorStyle = .none
+        tableView.register(OrderTableViewCell.self, forCellReuseIdentifier: OrderTableViewCell.identifier)
+    }
+    
+    private func bind() {
+        viewModel.bind(input: inputPublisher.eraseToAnyPublisher())
+            .sink { [weak self] output in
+                guard let self = self else { return }
+                switch output {
+                case .reloadData:
+                    self.tableView.reloadData()
+                    
+                case .noOrdersMessage(let isAppeare):
+                    self.isFooterAppear = isAppeare
+                    
+                case .goToMealDetailsVC(let mealsDetailsVC):
+                    self.navigationController?.pushViewController(mealsDetailsVC, animated: true)
+                }
+            }
+            .store(in: &cancellable)
     }
 }
 
@@ -42,21 +66,22 @@ extension OrdersListTableViewController {
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        if viewModel.showNoOrdersMessage {
-            let cell = UITableViewCell()
-            cell.textLabel?.text = "No orders yet!"
-            cell.textLabel?.textAlignment = .center
-            cell.selectionStyle = .none
-            return cell
-            
-            
-        } else {
-            let cell = tableView.dequeueReusableCell(withIdentifier: OrderTableViewCell.identifier, for: indexPath) as! OrderTableViewCell
-            if let order = viewModel.rowAt(indexPath) {
-                cell.setup(order)
-            }
-            return cell
-        }
+        let cell = tableView.dequeueReusableCell(withIdentifier: OrderTableViewCell.identifier, for: indexPath) as! OrderTableViewCell
+        let order = viewModel.rowForCell(at: indexPath)
+        cell.setup(order)
+        return cell
+    }
+    
+    override func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
+        guard isFooterAppear else { return nil}
+        let footerView = UIView(frame: .init(x: 0, y: 0, width: tableView.frame.size.width, height: 50))
+        footerView.backgroundColor = .white
+        let label = UILabel(frame: footerView.bounds)
+        label.text = "No orders yet!"
+        label.textAlignment = .center
+        label.textColor = .black
+        footerView.addSubview(label)
+        return footerView
     }
 }
 
@@ -64,8 +89,6 @@ extension OrdersListTableViewController {
 // MARK: - UITableViewDelegate
 extension OrdersListTableViewController {
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        viewModel.didSelectRowAt(indexPath) { [weak self] vc in
-            self?.present(vc, animated: true)
-        }
+        inputPublisher.send(.didSelectRowAt(indexPath))
     }
 }

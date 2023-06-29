@@ -120,7 +120,7 @@ class MealCollectionViewCell: UICollectionViewCell {
     
     
     // MARK: - Functions
-    public func setValues(_ meal: Meal) {
+    public func setMeal(_ meal: Meal) {
         mealNameLabel.text = meal.name
         mealImageView.setImage(meal.image)
     }

@@ -12,6 +12,8 @@ protocol HomeCollectionViewControllerSection {
     var view: UIView { get }
     var sectionHeight: CGFloat { get }
     var sectionTitle: String { get }
-    var pushViewController: ((UIViewController) -> Void)? { get set }
+    var navigationControllerPushVC: ((UIViewController) -> Void)? { get set }
+    var presentVC: ((UIViewController) -> Void)? { get set }
+    func sectionHeaderButtonTapped()
     func viewDidLoad()
 }

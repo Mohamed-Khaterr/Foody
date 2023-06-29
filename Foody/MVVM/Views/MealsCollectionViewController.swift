@@ -6,16 +6,20 @@
 //
 
 import UIKit
+import Combine
 
 
 class MealsCollectionViewController: UICollectionViewController {
 
-    private let viewModel = MealsViewModel()
-    private let mealsType: MealsType
+    private let viewModel: MealsViewModel
+    private let inputPublisher: PassthroughSubject<MealsViewModel.Input, Never> = .init()
+    private var cancellable = Set<AnyCancellable>()
+    
     
     // MARK: - init
     init(in mealsType: MealsType) {
-        self.mealsType = mealsType
+        viewModel = MealsViewModel(type: mealsType)
+        
         let flowLayout = UICollectionViewFlowLayout()
         flowLayout.scrollDirection = .vertical
         super.init(collectionViewLayout: flowLayout)
@@ -25,36 +29,50 @@ class MealsCollectionViewController: UICollectionViewController {
         fatalError("init(coder:) has not been implemented")
     }
     
+    deinit {
+        print("deinit: MealsCollectionViewController")
+    }
+    
     
     // MARK: - Life Cycle
     override func viewDidLoad() {
         super.viewDidLoad()
         // Setup Navigation
-//        navigationController?.navigationBar.prefersLargeTitles = false
-        navigationItem.title = "\(mealsType.value) Meals"
+        navigationItem.title = "\(viewModel.mealsTypeName) Meals"
         
         
         // Register Cells
         self.collectionView.register(MealCollectionViewCell.self, forCellWithReuseIdentifier: MealCollectionViewCell.identifier)
         
         
-        // Setup ViewModel
-        viewModel.fetchMeals(in: mealsType)
-        viewModel.reloadData = { [weak self] in
-            DispatchQueue.main.async {
-                self?.collectionView.reloadData()
+        bind()
+        inputPublisher.send(.viewDidLoad)
+    }
+    
+    private func bind() {
+        viewModel.bind(input: inputPublisher.eraseToAnyPublisher())
+            .sink { [weak self] output in
+                guard let self = self else { return }
+                switch output {
+                case .reloadData:
+                    self.collectionView.reloadData()
+                    
+                case .error(let title, let message):
+                    let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+                    alert.addAction(UIAlertAction(title: "Close", style: .cancel))
+                    self.present(alert, animated: true)
+                    
+                case .goToMealDetailsVC(let mealDetailsVC):
+                    self.navigationController?.pushViewController(mealDetailsVC, animated: true)
+                }
             }
-        }
+            .store(in: &cancellable)
     }
 }
 
 
 // MARK: - UICollectionViewDataSource
 extension MealsCollectionViewController{
-    override func numberOfSections(in collectionView: UICollectionView) -> Int {
-        return 1
-    }
-
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return viewModel.numberOfItems
     }
@@ -62,9 +80,8 @@ extension MealsCollectionViewController{
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: MealCollectionViewCell.identifier, for: indexPath) as! MealCollectionViewCell
         cell.skeletonView(show: viewModel.isSkeletonAnimating)
-        if let meal = viewModel.itemAt(indexPath){
-            cell.setValues(meal)
-        }
+        let meal = viewModel.itemForCell(at: indexPath)
+        cell.setMeal(meal)
         return cell
     }
 }
@@ -73,9 +90,7 @@ extension MealsCollectionViewController{
 // MARK: - UICollectionViewDelegate
 extension MealsCollectionViewController {
     override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        viewModel.didSelectItemAt(indexPath) { [weak self] mealDetailsVC in
-            self?.navigationController?.pushViewController(mealDetailsVC, animated: true)
-        }
+        inputPublisher.send(.didSelectItemAt(indexPath))
     }
 }
 

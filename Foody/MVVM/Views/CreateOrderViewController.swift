@@ -6,6 +6,8 @@
 //
 
 import UIKit
+import Combine
+
 
 class CreateOrderViewController: UIViewController {
     
@@ -13,16 +15,21 @@ class CreateOrderViewController: UIViewController {
     // MARK: - Variables
     private let mainView = CreateOrderView()
     private let viewModel: CreateOrderViewModel
+    private let inputPublisher: PassthroughSubject<CreateOrderViewModel.Input, Never> = .init()
+    private var cancelllable = Set<AnyCancellable>()
     
     
     init(meal: MealDetails) {
         viewModel = CreateOrderViewModel(mealDetails: meal)
         super.init(nibName: nil, bundle: nil)
-        mainView.setValues(name: meal.name, image: meal.image)
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    deinit {
+        print("deinit: CreateOrderViewController")
     }
     
     
@@ -34,46 +41,58 @@ class CreateOrderViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        setupNavigationBar()
+        setupMainView()
+        bind()
+        inputPublisher.send(.viewDidLoad)
+    }
+    
+    private func setupNavigationBar() {
         let cancelButton = UIBarButtonItem(title: "Cancel", style: .done, target: self, action: #selector(cancelButtonPressed))
         cancelButton.tintColor = .red
         navigationItem.rightBarButtonItem = cancelButton
         navigationItem.title = "Create Order"
-        
+    }
+    
+    private func setupMainView() {
         mainView.textFieldDelegate = self
         mainView.delegate = self
-        
-        viewModel.updateQuantity = { [weak self] quantity in
-            self?.mainView.quantity = quantity
-        }
-        
-        viewModel.showLoadingView = { [weak self] isLoading in
-            self?.mainView.isElementsEnabled = !isLoading
-        }
-        
-        viewModel.orderStatus = { [weak self] success in
-            guard let strongSelf = self else { return }
-            DispatchQueue.main.async {
-                let alert: UIAlertController!
-                if success {
-                    alert = UIAlertController(title: "Success", message: "Order created successfully!", preferredStyle: .alert)
-                    let action = UIAlertAction(title: "Ok", style: .cancel) { [weak self] action in
-                        guard let strongSelf2 = self else { return }
-                        strongSelf2.dismiss(animated: true)
+    }
+    
+    private func bind() {
+        viewModel.bind(input: inputPublisher.eraseToAnyPublisher())
+            .sink { [weak self] output in
+                guard let self = self else { return }
+                switch output {
+                case .updateQuantityLabel(let text):
+                    self.mainView.quantity = text
+                    
+                case .updateElements(let name, let image, let quantity):
+                    self.mainView.name = name
+                    self.mainView.image = image
+                    self.mainView.quantity = quantity
+                    
+                case .elementsEnable(let isEnabled):
+                    self.mainView.isElementsEnabled = isEnabled
+                    
+                case .alert(let title, let message, let dismissVCOnAction):
+                    let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+                    let action = UIAlertAction(title: "Ok", style: .cancel) { [weak self] _ in
+                        guard let self2 = self else { return }
+                        if dismissVCOnAction {
+                            self2.dismiss(animated: true)
+                        }
                     }
                     alert.addAction(action)
-                }else {
-                    alert = UIAlertController(title: "Fail", message: "Fail to create an order!", preferredStyle: .alert)
-                    alert.addAction(UIAlertAction(title: "Ok", style: .cancel))
+                    self.present(alert, animated: true)
                 }
-                
-                strongSelf.present(alert, animated: true)
             }
-        }
+            .store(in: &cancelllable)
     }
     
     
     
-    // MARK: - Functions
+    // MARK: - Buttons Action
     @objc private func cancelButtonPressed() {
         self.dismiss(animated: true)
     }
@@ -85,6 +104,7 @@ class CreateOrderViewController: UIViewController {
 // MARK: - UITextFieldDelegate
 extension CreateOrderViewController: UITextFieldDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        inputPublisher.send(.usernametextFieldReturnButtonPressed(mainView.username))
         textField.endEditing(true)
         return true
     }
@@ -95,14 +115,15 @@ extension CreateOrderViewController: UITextFieldDelegate {
 // MARK: - CreateOrderViewDelegate
 extension CreateOrderViewController: CreateOrderViewDelegate {
     func orderButtonPressed() {
-        viewModel.createOrder(userName: mainView.usernameText)
+        inputPublisher.send(.usernametextFieldReturnButtonPressed(mainView.username))
+        inputPublisher.send(.orderButtonPressed)
     }
-    
-    func addButtonPressed() {
-        viewModel.increaseQuantity()
+
+    func plusButtonPressed() {
+        inputPublisher.send(.plusButtonPressed)
     }
-    
-    func removeButtonPressed() {
-        viewModel.decreaseQuantity()
+
+    func minusButtonPressed() {
+        inputPublisher.send(.minusButtonPressed)
     }
 }

@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Combine
 
 
 /// HomeCollectionViewController is a CollectionViewController which consists of  collectionView sections + last section,
@@ -18,8 +19,12 @@ class HomeCollectionViewController: UICollectionViewController {
     // MARK: - Variables
     // Top section
     private var sections = [HomeCollectionViewControllerSection]()
+    
+    
     // ViewModel for last section
-    private let mealsViewModel = MealsViewModel()
+    private let mealsViewModel = MealsViewModel(type: .country("Canadian"))
+    private let mealsInputPublisher: PassthroughSubject<MealsViewModel.Input, Never> = .init()
+    private var mealsSubscriber: AnyCancellable?
     // Last Section Index
     private var lastSection: Int {
         return sections.count
@@ -37,21 +42,27 @@ class HomeCollectionViewController: UICollectionViewController {
         fatalError("init(coder:) has not been implemented")
     }
     
+    
 
     // MARK: - Life Cycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        setupNavigation()
+        view.backgroundColor = .white
+        setupNavigationController()
         registerCellInCollectionView()
         setupSections()
-        setupMealsViewModel()
+        bindWithMealsViewModel()
+        mealsInputPublisher.send(.viewDidLoad)
     }
     
     
     
     
     // MARK: - Functions
-    private func setupNavigation() {
+    private func setupNavigationController() {
+        navigationController?.navigationBar.backgroundColor = .white
+        navigationController?.navigationBar.barTintColor = .black
+        navigationController?.navigationBar.tintColor = .black
         navigationItem.title = "Home"
         navigationController?.navigationBar.prefersLargeTitles = true
         let cartButton = UIBarButtonItem(image: UIImage(systemName: "cart.fill"), style: .done, target: self, action: #selector(cartBarButtonPressed))
@@ -61,6 +72,7 @@ class HomeCollectionViewController: UICollectionViewController {
     }
     
     private func registerCellInCollectionView() {
+        collectionView.backgroundColor = .white
         collectionView.register(HeaderTitleCollectionReusableView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: HeaderTitleCollectionReusableView.identifier)
         collectionView.register(UICollectionViewCell.self, forCellWithReuseIdentifier: "SectionCell")
         collectionView.register(MealCollectionViewCell.self, forCellWithReuseIdentifier: MealCollectionViewCell.identifier)
@@ -73,18 +85,33 @@ class HomeCollectionViewController: UICollectionViewController {
             // notify each section when viewDidLoad
             section.viewDidLoad()
             
-            sections[index].pushViewController = { [weak self] vc in
+            sections[index].navigationControllerPushVC = { [weak self] vc in
                 self?.navigationController?.pushViewController(vc, animated: true)
+            }
+            
+            sections[index].presentVC = { [weak self] vc in
+                self?.present(vc, animated: true)
             }
         }
     }
     
-    private func setupMealsViewModel() {
-        mealsViewModel.fetchMeals(in: .country("Canadian"))
-        mealsViewModel.reloadData = { [weak self] in
-            guard let strongSelf = self else { return }
-            strongSelf.collectionView.reloadSections(IndexSet(integer: strongSelf.lastSection))
-        }
+    private func bindWithMealsViewModel() {
+        mealsSubscriber = mealsViewModel.bind(input: mealsInputPublisher.eraseToAnyPublisher())
+            .sink { [weak self] events in
+                guard let self = self else { return }
+                switch events {
+                case .reloadData:
+                    self.collectionView.reloadSections(IndexSet(integer: self.lastSection))
+                    
+                case .error(title: let title, message: let message):
+                    let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+                    alert.addAction(UIAlertAction(title: "Close", style: .cancel))
+                    self.present(alert, animated: true)
+                    
+                case .goToMealDetailsVC(let mealDetailsVC):
+                    self.navigationController?.pushViewController(mealDetailsVC, animated: true)
+                }
+            }
     }
     
     
@@ -115,7 +142,7 @@ extension HomeCollectionViewController {
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         if section == lastSection {
             // Last section
-            return mealsViewModel.isSkeletonAnimating ? 4 : mealsViewModel.numberOfItems
+            return mealsViewModel.numberOfItems
         } else  {
             return 1
         }
@@ -126,14 +153,14 @@ extension HomeCollectionViewController {
             // Last section
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: MealCollectionViewCell.identifier, for: indexPath) as! MealCollectionViewCell
             cell.skeletonView(show: mealsViewModel.isSkeletonAnimating)
-            if let meal = mealsViewModel.itemAt(indexPath) {
-                cell.setValues(meal)
-            }
+            let meal = mealsViewModel.itemForCell(at: indexPath)
+            cell.setMeal(meal)
             return cell
             
         } else {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "SectionCell", for: indexPath)
             let section = sections[indexPath.section]
+            section.view.backgroundColor = .white
             cell.contentView.addSubview(section.view)
             // Set Constraints of each section to the Cell
             setConstraints(superview: cell, subview: section.view)
@@ -164,17 +191,7 @@ extension HomeCollectionViewController {
             let section = sections[indexPath.section]
             headerView.setTitle(section.sectionTitle)
             headerView.rightButtonTapped = { [weak self] in
-                switch indexPath.section {
-                case 0: // Countries
-                    let countriesVC = CountriesCollectionViewController()
-                    self?.navigationController?.pushViewController(countriesVC, animated: true)
-                    
-                case 1: // Food Cateogries
-                    let foodCateogriesVC = FoodCategoriesCollectionViewController()
-                    self?.navigationController?.pushViewController(foodCateogriesVC, animated: true)
-                    
-                default: break
-                }
+                self?.sections[indexPath.section].sectionHeaderButtonTapped()
             }
         }
         return headerView
@@ -186,9 +203,7 @@ extension HomeCollectionViewController {
 extension HomeCollectionViewController {
     override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         guard indexPath.section == lastSection else { return }
-        mealsViewModel.didSelectItemAt(indexPath) { [weak self] mealDetailsVC in
-            self?.navigationController?.pushViewController(mealDetailsVC, animated: true)
-        }
+        mealsInputPublisher.send(.didSelectItemAt(indexPath))
     }
 }
 
@@ -199,13 +214,18 @@ extension HomeCollectionViewController: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
         return 8.0
     }
-    
+
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
         return 8.0
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
-        return .init(top: 0, left: 8, bottom: 16, right: 8)
+        if section == lastSection {
+            return .init(top: 0, left: 8, bottom: 0, right: 8)
+        } else {
+            // No padding for other top sections
+            return .zero
+        }
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {

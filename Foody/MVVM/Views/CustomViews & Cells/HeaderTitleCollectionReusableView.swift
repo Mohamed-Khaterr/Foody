@@ -16,7 +16,7 @@ class HeaderTitleCollectionReusableView: UICollectionReusableView {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.text = "Section title"
         label.textAlignment = .left
-        label.textColor = .label
+        label.textColor = .black
         label.font = .systemFont(ofSize: 17, weight: .bold)
         return label
     }()

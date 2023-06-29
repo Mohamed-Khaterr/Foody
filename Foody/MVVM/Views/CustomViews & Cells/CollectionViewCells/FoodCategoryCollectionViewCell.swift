@@ -97,13 +97,13 @@ class FoodCategoryCollectionViewCell: UICollectionViewCell {
     
     
     // MARK: - Functions
-    public func setValues(_ category: FoodCategory) {
+    public func setFoodCategory(_ category: FoodCategory) {
         categoryImageView.setImage(category.image)
         categoryNameLabel.text = category.name
     }
     
-    public func skeletonView(show: Bool) {
-        if show {
+    public func skeletonView(_ isEnable: Bool) {
+        if isEnable {
             showAnimatedGradientSkeleton()
         } else {
             hideSkeleton()

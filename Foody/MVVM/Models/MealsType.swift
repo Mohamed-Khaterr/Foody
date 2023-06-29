@@ -9,13 +9,6 @@ import Foundation
 
 
 enum MealsType {
-    case category(String)
-    case country(String)
-    
-    var value: String {
-        switch self {
-        case .category(let category): return category
-        case .country(let area): return area
-        }
-    }
+    case category(_ name: String)
+    case country(_ name: String)
 }

@@ -6,68 +6,120 @@
 //
 
 import Foundation
+import Combine
 
 
 final class MealsViewModel {
     
-    // MARK: - Public Variables
-    var reloadData: (()->Void)?
+    enum Input {
+        case viewDidLoad
+        case didSelectItemAt(_ indexPath: IndexPath)
+    }
     
-    public private(set) var isSkeletonAnimating: Bool = false
+    enum Output {
+        case reloadData
+        case error(title: String, message: String)
+        case goToMealDetailsVC(_ vc: MealDetailsViewController)
+    }
+    
+    
+    
+    public var mealsTypeName: String {
+        switch type {
+        case .category(let cateogryName): return cateogryName
+        case .country(let countryName): return countryName
+        }
+    }
     
     public var numberOfItems: Int {
-        // 3 is to create 3 cells with SkeletonViewAnimation
-        return meals.isEmpty ? 3 : meals.count
+        return meals.count
+    }
+    
+    public func itemForCell(at indexPath: IndexPath) -> Meal {
+        return meals[indexPath.row]
+    }
+    
+    public private(set) var isSkeletonAnimating = false
+    
+    
+    private let network: NetworkManagerType
+    private var networkSubscriber: AnyCancellable?
+    private let outputPublisher: PassthroughSubject<MealsViewModel.Output, Never> = .init()
+    private var cancellable = Set<AnyCancellable>()
+    
+    private let type: MealsType
+    private var meals: [Meal] = [
+        Meal(id: "", name: "Loading", image: ""),
+        Meal(id: "", name: "Loading", image: ""),
+        Meal(id: "", name: "Loading", image: "")
+    ]
+    
+    
+    init(network: NetworkManagerType = NetworkManager(), type: MealsType) {
+        self.network = network
+        self.type = type
+    }
+    
+    deinit {
+        print("deinit: MealsViewModel")
     }
     
     
-    
-    // MARK: - Private Variables
-    private var meals = [Meal]() {
-        didSet {
-            DispatchQueue.main.async {
-                self.reloadData?()
+    public func bind(input subscription: AnyPublisher<MealsViewModel.Input, Never>) -> AnyPublisher<MealsViewModel.Output, Never> {
+        subscription
+            .sink { [weak self] events in
+                guard let self = self else { return }
+                switch events {
+                case .viewDidLoad:
+                    self.fetchMeals()
+                    
+                case .didSelectItemAt(let indexPath):
+                    let meal = self.meals[indexPath.row]
+                    let mealDetailsVC = MealDetailsViewController(mealID: meal.id, showPlaceOrderButton: true)
+                    self.outputPublisher.send(.goToMealDetailsVC(mealDetailsVC))
+                }
             }
+            .store(in: &cancellable)
+        
+        return outputPublisher.eraseToAnyPublisher()
+    }
+    
+    private func fetchMeals(){
+        isSkeletonAnimating = true
+        do {
+            let request = try network.createURLRequest(endpoint: MealDBEndpoint.filter,
+                                                       method: .get,
+                                                       parameters: getParameters())
+            
+            networkSubscriber = nil
+            networkSubscriber = network.request(with: request, type: MealsResponse.self)
+                .map(\.meals)
+                .receive(on: DispatchQueue.main)
+                .sink(receiveCompletion: { [weak self] completion in
+                    guard let self = self else { return }
+                    switch completion {
+                    case .finished:
+                        self.isSkeletonAnimating = false
+                        self.outputPublisher.send(.reloadData)
+                        
+                    case .failure(let error):
+                        self.outputPublisher.send(.error(title: "Network", message: error.localizedDescription))
+                    }
+                }, receiveValue: { [weak self] meals in
+                    self?.meals = meals
+                })
+            
+        } catch {
+            outputPublisher.send(.error(title: "URL Request", message: error.localizedDescription))
         }
     }
     
-    
-    
-    // MARK: - Methods
-    public func itemAt(_ indexPath: IndexPath) -> Meal? {
-        return meals.isEmpty ? nil : meals[indexPath.row]
-    }
-    
-    public func didSelectItemAt(_ indexPath: IndexPath, compeltionHandler: @escaping (MealDetailsViewController) -> Void) {
-        if meals.isEmpty { return }
-        let meal = meals[indexPath.row]
-        let mealDetailsVC = MealDetailsViewController(mealID: meal.id, showPlaceOrderButton: true)
-        DispatchQueue.main.async {
-            compeltionHandler(mealDetailsVC)
-        }
-    }
-    
-    public func fetchMeals(in type: MealsType){
+    private func getParameters() -> [String: String] {
         let parameters: [String: String]
         switch type {
-        case .category(let name):
-            parameters = ["c": name]
-        case .country(let name):
-            parameters = ["a": name]
+        case .category(let cateogryName): parameters = ["c": cateogryName]
+        case .country(let countryName): parameters = ["a": countryName]
         }
-        
-        isSkeletonAnimating = true
-        Task{
-            do {
-                let mealsResponse = try await NetworkManager.shared.request(endpoint: FreeMealDBEndPoint.filter,
-                                                                            method: .get,
-                                                                            parameters: parameters,
-                                                                            type: MealsResponse.self)
-                meals = mealsResponse.meals
-                isSkeletonAnimating = false
-            } catch {
-                print("Error: \(error)")
-            }
-        }
+        return parameters
     }
 }

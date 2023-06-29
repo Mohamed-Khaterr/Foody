@@ -10,8 +10,8 @@ import UIKit
 
 @objc protocol CreateOrderViewDelegate: AnyObject {
     func orderButtonPressed()
-    func addButtonPressed()
-    func removeButtonPressed()
+    func plusButtonPressed()
+    func minusButtonPressed()
 }
 
 
@@ -125,41 +125,6 @@ class CreateOrderView: UIView {
     
     
     
-    // MARK: - Variables
-    public var quantity: String? {
-        didSet {
-            quantityLabel.text = quantity
-        }
-    }
-    
-    public var textFieldDelegate: UITextFieldDelegate? {
-        didSet {
-            usernameTextField.delegate = textFieldDelegate
-        }
-    }
-    
-    public var usernameText: String {
-        return usernameTextField.text ?? ""
-    }
-    
-    public var delegate: CreateOrderViewDelegate? {
-        didSet {
-            orderButton.addTarget(delegate, action: #selector(delegate?.orderButtonPressed), for: .touchUpInside)
-            plusButton.addTarget(delegate, action: #selector(delegate?.addButtonPressed), for: .touchUpInside)
-            minusButton.addTarget(delegate, action: #selector(delegate?.removeButtonPressed), for: .touchUpInside)
-        }
-    }
-    
-    public var isElementsEnabled: Bool = true {
-        didSet {
-            orderButton.isEnabled = isElementsEnabled
-            plusButton.isEnabled = isElementsEnabled
-            minusButton.isEnabled = isElementsEnabled
-            usernameTextField.isEnabled = isElementsEnabled
-        }
-    }
-    
-    
     // MARK: - init
     init() {
         super.init(frame: .zero)
@@ -230,9 +195,49 @@ class CreateOrderView: UIView {
     
     
     
-    // MARK: - Functions
-    public func setValues(name: String, image: String) {
-        mealNameLabel.text = name
-        mealImageView.setImage(image)
+    // MARK: - Setters
+    public weak var delegate: CreateOrderViewDelegate? {
+        didSet {
+            orderButton.addTarget(delegate, action: #selector(delegate?.orderButtonPressed), for: .touchUpInside)
+            plusButton.addTarget(delegate, action: #selector(delegate?.plusButtonPressed), for: .touchUpInside)
+            minusButton.addTarget(delegate, action: #selector(delegate?.minusButtonPressed), for: .touchUpInside)
+        }
+    }
+    
+    public weak var textFieldDelegate: UITextFieldDelegate? {
+        didSet {
+            usernameTextField.delegate = textFieldDelegate
+        }
+    }
+    
+    public var username: String? {
+        return usernameTextField.text
+    }
+    
+    public var quantity: String? {
+        didSet {
+            quantityLabel.text = quantity
+        }
+    }
+    
+    public var name: String? = nil {
+        didSet {
+            mealNameLabel.text = name
+        }
+    }
+    
+    public var image: String = "" {
+        didSet {
+            mealImageView.setImage(image)
+        }
+    }
+    
+    public var isElementsEnabled: Bool = true {
+        didSet {
+            orderButton.isEnabled = isElementsEnabled
+            plusButton.isEnabled = isElementsEnabled
+            minusButton.isEnabled = isElementsEnabled
+            usernameTextField.isEnabled = isElementsEnabled
+        }
     }
 }

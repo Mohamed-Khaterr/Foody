@@ -6,11 +6,15 @@
 //
 
 import UIKit
+import Combine
+
 
 class FoodCategoriesCollectionViewController: UICollectionViewController {
     
     // MARK: - Variables
     private let viewModel = FoodCategoriesViewModel()
+    private let inputPublisher: PassthroughSubject<FoodCategoriesViewModel.Input, Never> = .init()
+    private var cancellable = Set<AnyCancellable>()
     
     
     // MARK: - init
@@ -24,6 +28,10 @@ class FoodCategoriesCollectionViewController: UICollectionViewController {
         fatalError("init(coder:) has not been implemented")
     }
     
+    deinit {
+        print("deinit: FoodCategoriesCollectionViewController")
+    }
+    
     
     // MARK: - Life Cycle
     override func viewDidLoad() {
@@ -35,14 +43,28 @@ class FoodCategoriesCollectionViewController: UICollectionViewController {
         // Register Cells
         collectionView.register(FoodCategoryCollectionViewCell.self, forCellWithReuseIdentifier: FoodCategoryCollectionViewCell.identifier)
         
-        
-        // Setup ViewModel
-        viewModel.fetchFoodCategories()
-        viewModel.reloadData = { [weak self] in
-            DispatchQueue.main.async {
-                self?.collectionView.reloadData()
+        bind()
+        inputPublisher.send(.viewDidLoad)
+    }
+    
+    private func bind() {
+        viewModel.bind(ViewInput: inputPublisher.eraseToAnyPublisher())
+            .sink { [weak self] output in
+                guard let self = self else { return }
+                switch output {
+                case .reloadData:
+                    self.collectionView.reloadData()
+                    
+                case .error(let title, let message):
+                    let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+                    alert.addAction(UIAlertAction(title: "Close", style: .cancel))
+                    self.present(alert, animated: true)
+                    
+                case .navigateToCategoryMeals(let mealsVC):
+                    self.navigationController?.pushViewController(mealsVC, animated: true)
+                }
             }
-        }
+            .store(in: &cancellable)
     }
 }
 
@@ -56,10 +78,9 @@ extension FoodCategoriesCollectionViewController {
     
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: FoodCategoryCollectionViewCell.identifier, for: indexPath) as! FoodCategoryCollectionViewCell
-        cell.skeletonView(show: viewModel.isSkeletonAnimating)
-        if let category = viewModel.itemAt(indexPath) {
-            cell.setValues(category)
-        }
+        cell.skeletonView(viewModel.isAnimating)
+        let category = viewModel.itemForCell(at: indexPath)
+        cell.setFoodCategory(category)
         return cell
     }
 }
@@ -69,9 +90,7 @@ extension FoodCategoriesCollectionViewController {
 // MARK: - UICollectionViewDelegate
 extension FoodCategoriesCollectionViewController {
     override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        viewModel.didSelectItemAt(indexPath) { [weak self] vc in
-            self?.navigationController?.pushViewController(vc, animated: true)
-        }
+        inputPublisher.send(.didSelectItemAt(indexPath))
     }
 }
 
