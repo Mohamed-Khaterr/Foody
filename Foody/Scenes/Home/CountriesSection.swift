@@ -10,15 +10,16 @@ import Combine
 
 
 
-class CountriesSection: UICollectionView {
+final class CountriesSection: UICollectionView {
+    
+    // From HomeCollectionViewControllerSection
+    var navigationControllerPushVC: ((UIViewController) -> Void)?
+    var presentVC: ((UIViewController) -> Void)?
     
     // MARK: - Variables
-    var navigationControllerPushVC: ((UIViewController) -> Void)? // from HomeCollectionViewControllerSection
-    var presentVC: ((UIViewController) -> Void)? // from HomeCollectionViewControllerSection
-    
     private let viewModel = CountriesViewModel()
     private var viewModelSubscriber: AnyCancellable?
-    private let inputPublisher: PassthroughSubject<CountriesViewModel.Input, Never> = .init()
+    private let inputPublisher: PassthroughSubject<CountriesInput, Never> = .init()
     
     
     // MARK: - init

@@ -9,6 +9,10 @@ import Foundation
 import Combine
 
 
+typealias FoodCategoriesInput = FoodCategoriesViewModel.Input
+typealias FoodCategoriesOutput = FoodCategoriesViewModel.Output
+
+
 final class FoodCategoriesViewModel {
     
     enum Input {
@@ -28,7 +32,7 @@ final class FoodCategoriesViewModel {
     // MARK: - Variables
     private let network: NetworkManagerType
     private var networkSubscirber: AnyCancellable?
-    private let outputPublisher: PassthroughSubject<FoodCategoriesViewModel.Output, Never> = .init()
+    private let outputPublisher: PassthroughSubject<FoodCategoriesOutput, Never> = .init()
     private var cancellable = Set<AnyCancellable>()
     
     private var foodCategories: [FoodCategory] = [
@@ -65,7 +69,7 @@ final class FoodCategoriesViewModel {
     
     
     // MARK: - Methods
-    public func bind(ViewInput subscription: AnyPublisher<FoodCategoriesViewModel.Input, Never>) -> AnyPublisher<FoodCategoriesViewModel.Output, Never> {
+    public func bind(ViewInput subscription: AnyPublisher<FoodCategoriesInput, Never>) -> AnyPublisher<FoodCategoriesOutput, Never> {
         subscription.sink { [weak self] events in
             guard let self = self else { return }
             switch events {

@@ -8,7 +8,7 @@
 import UIKit
 
 
-class OrderTableViewCell: UITableViewCell {
+class CartTableViewCell: UITableViewCell {
     
     // MARK: - UIComponents
     private let cardView: UIView = {

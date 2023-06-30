@@ -46,7 +46,7 @@ class FoodCategoryCollectionViewCell: UICollectionViewCell {
         super.init(frame: frame)
         setupSubViewsLayout()
         isSkeletonable = true
-        clipsToBounds = false
+        self.clipsToBounds = false
     }
     
     required init?(coder: NSCoder) {

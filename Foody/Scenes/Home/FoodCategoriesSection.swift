@@ -10,13 +10,16 @@ import Combine
 
 
 
-class FoodCategoriesSection: UICollectionView {
+final class FoodCategoriesSection: UICollectionView {
+    
+    // From HomeCollectionViewControllerSection
+    var navigationControllerPushVC: ((UIViewController) -> Void)?
+    var presentVC: ((UIViewController) -> Void)?
+    
     
     // MARK: - Variables
-    var navigationControllerPushVC: ((UIViewController) -> Void)? // from HomeCollectionViewControllerSection
-    var presentVC: ((UIViewController) -> Void)? // from HomeCollectionViewControllerSection
     private let viewModel = FoodCategoriesViewModel()
-    private let inputPublisher: PassthroughSubject<FoodCategoriesViewModel.Input, Never> = .init()
+    private let inputPublisher: PassthroughSubject<FoodCategoriesInput, Never> = .init()
     private var cancellable = Set<AnyCancellable>()
     
     
@@ -65,6 +68,7 @@ extension FoodCategoriesSection: HomeCollectionViewControllerSection {
         dataSource = self
         
         // Appearnce
+        backgroundColor = .white
         showsHorizontalScrollIndicator = false
         clipsToBounds = false // To Make shadow of CardView in Cell appear
     }

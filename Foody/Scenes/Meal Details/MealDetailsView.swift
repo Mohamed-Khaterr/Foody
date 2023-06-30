@@ -86,7 +86,7 @@ final class MealDetailsView: UIView {
     private lazy var placeOrderButton: UIButton = {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.setTitle("Place an Order!", for: .normal)
+        button.setTitle("Add to cart!", for: .normal)
         button.titleLabel?.textColor = .white
         button.backgroundColor = .darkGray
         button.layer.cornerRadius = 10

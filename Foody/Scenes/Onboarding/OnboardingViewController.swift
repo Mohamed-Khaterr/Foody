@@ -124,7 +124,7 @@ class OnboardingViewController: UIViewController {
         if selectedSlide == slides.count {
             let nav = UINavigationController(rootViewController: HomeCollectionViewController())
             nav.modalPresentationStyle = .fullScreen
-            nav.modalTransitionStyle = .flipHorizontal
+            nav.modalTransitionStyle = .crossDissolve
             present(nav, animated: true) {
                 UserDefaults.standard.set(true, forKey: "isSeeOnboardingPage")
             }

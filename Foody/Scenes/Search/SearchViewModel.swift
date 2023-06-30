@@ -9,7 +9,7 @@ import Foundation
 import Combine
 
 
-class SearchViewModel {
+final class SearchViewModel {
     
     enum Input {
         case viewDidLoad

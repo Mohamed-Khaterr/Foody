@@ -12,7 +12,7 @@ import Combine
 typealias CartInput = CartViewModel.Input
 typealias CartOutput = CartViewModel.Output
 
-class CartViewModel {
+final class CartViewModel {
     
     enum Input {
         case viewDidLoad
@@ -36,6 +36,10 @@ class CartViewModel {
     
     init(orderManager: OrderManagerType = OrderManager()) {
         self.orderManager = orderManager
+    }
+    
+    deinit {
+        print("deinit: CartViewModel")
     }
     
     public var numberOfRows: Int {

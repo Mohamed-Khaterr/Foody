@@ -9,6 +9,10 @@ import Foundation
 import Combine
 
 
+typealias CountriesInput = CountriesViewModel.Input
+typealias CountriesOutput = CountriesViewModel.Output
+
+
 final class CountriesViewModel {
     
     enum Input {
@@ -57,7 +61,7 @@ final class CountriesViewModel {
     
     
     // MARK: - Methods
-    public func bind(input subscription: AnyPublisher<Input, Never>) -> AnyPublisher<Output, Never> {
+    public func bind(input subscription: AnyPublisher<CountriesInput, Never>) -> AnyPublisher<CountriesOutput, Never> {
         subscription.sink { [weak self] events in
             guard let self = self else { return }
             // Handle View inputs

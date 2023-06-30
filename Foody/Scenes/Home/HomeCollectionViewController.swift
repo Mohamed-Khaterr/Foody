@@ -23,7 +23,7 @@ class HomeCollectionViewController: UICollectionViewController {
     
     // ViewModel for last section
     private let mealsViewModel = MealsViewModel(type: .country("Canadian"))
-    private let mealsInputPublisher: PassthroughSubject<MealsViewModel.Input, Never> = .init()
+    private let mealsInputPublisher: PassthroughSubject<MealsInput, Never> = .init()
     private var mealsSubscriber: AnyCancellable?
     // Last Section Index
     private var lastSection: Int {
@@ -61,7 +61,6 @@ class HomeCollectionViewController: UICollectionViewController {
     // MARK: - Functions
     private func setupNavigationController() {
         navigationController?.navigationBar.backgroundColor = .white
-        navigationController?.navigationBar.barTintColor = .black
         navigationController?.navigationBar.tintColor = .black
         navigationItem.title = "Home"
         navigationController?.navigationBar.prefersLargeTitles = true
@@ -160,7 +159,6 @@ extension HomeCollectionViewController {
         } else {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "SectionCell", for: indexPath)
             let section = sections[indexPath.section]
-            section.view.backgroundColor = .white
             cell.contentView.addSubview(section.view)
             // Set Constraints of each section to the Cell
             setConstraints(superview: cell, subview: section.view)
@@ -224,7 +222,7 @@ extension HomeCollectionViewController: UICollectionViewDelegateFlowLayout {
             return .init(top: 0, left: 8, bottom: 0, right: 8)
         } else {
             // No padding for other top sections
-            return .zero
+            return .init(top: 0, left: 0, bottom: 8, right: 0)
         }
     }
     

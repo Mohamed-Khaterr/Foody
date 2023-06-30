@@ -12,7 +12,7 @@ import Combine
 class MealsCollectionViewController: UICollectionViewController {
 
     private let viewModel: MealsViewModel
-    private let inputPublisher: PassthroughSubject<MealsViewModel.Input, Never> = .init()
+    private let inputPublisher: PassthroughSubject<MealsInput, Never> = .init()
     private var cancellable = Set<AnyCancellable>()
     
     

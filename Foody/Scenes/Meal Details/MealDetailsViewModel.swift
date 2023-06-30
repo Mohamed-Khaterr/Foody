@@ -64,7 +64,8 @@ final class MealDetailsViewModel {
             }
         }
         .store(in: &cancellable)
-        return outputPublisher.receive(on: DispatchQueue.main).eraseToAnyPublisher()
+        
+        return outputPublisher.receive(on: DispatchQueue.main).receive(on: DispatchQueue.main).eraseToAnyPublisher()
     }
     
     

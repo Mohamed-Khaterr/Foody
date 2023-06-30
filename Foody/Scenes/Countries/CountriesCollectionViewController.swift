@@ -14,7 +14,7 @@ class CountriesCollectionViewController: UICollectionViewController {
     // MARK: - Variables
     private let viewModel = CountriesViewModel()
     private var cancellable = Set<AnyCancellable>()
-    private let inputPublisher: PassthroughSubject<CountriesViewModel.Input, Never> = .init()
+    private let inputPublisher: PassthroughSubject<CountriesInput, Never> = .init()
     
     
     

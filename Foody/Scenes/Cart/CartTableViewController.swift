@@ -20,6 +20,10 @@ class CartTableViewController: UITableViewController {
     private var isFooterAppear = false
     
     
+    deinit {
+        print("deinit: CartTableViewController")
+    }
+    
     // MARK: - Life Cycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -36,7 +40,7 @@ class CartTableViewController: UITableViewController {
     
     private func setupTableView() {
         tableView.separatorStyle = .none
-        tableView.register(OrderTableViewCell.self, forCellReuseIdentifier: OrderTableViewCell.identifier)
+        tableView.register(CartTableViewCell.self, forCellReuseIdentifier: CartTableViewCell.identifier)
     }
     
     private func bind() {
@@ -66,7 +70,7 @@ extension CartTableViewController {
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: OrderTableViewCell.identifier, for: indexPath) as! OrderTableViewCell
+        let cell = tableView.dequeueReusableCell(withIdentifier: CartTableViewCell.identifier, for: indexPath) as! CartTableViewCell
         let order = viewModel.rowForCell(at: indexPath)
         cell.setup(order)
         return cell
@@ -77,7 +81,7 @@ extension CartTableViewController {
         let footerView = UIView(frame: .init(x: 0, y: 0, width: tableView.frame.size.width, height: 50))
         footerView.backgroundColor = .white
         let label = UILabel(frame: footerView.bounds)
-        label.text = "No orders yet!"
+        label.text = "Empty!"
         label.textAlignment = .center
         label.textColor = .black
         footerView.addSubview(label)

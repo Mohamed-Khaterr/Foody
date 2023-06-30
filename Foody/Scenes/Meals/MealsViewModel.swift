@@ -9,6 +9,10 @@ import Foundation
 import Combine
 
 
+typealias MealsInput = MealsViewModel.Input
+typealias MealsOutput = MealsViewModel.Output
+
+
 final class MealsViewModel {
     
     enum Input {
@@ -44,7 +48,7 @@ final class MealsViewModel {
     
     private let network: NetworkManagerType
     private var networkSubscriber: AnyCancellable?
-    private let outputPublisher: PassthroughSubject<MealsViewModel.Output, Never> = .init()
+    private let outputPublisher: PassthroughSubject<MealsOutput, Never> = .init()
     private var cancellable = Set<AnyCancellable>()
     
     private let type: MealsType
@@ -65,7 +69,7 @@ final class MealsViewModel {
     }
     
     
-    public func bind(input subscription: AnyPublisher<MealsViewModel.Input, Never>) -> AnyPublisher<MealsViewModel.Output, Never> {
+    public func bind(input subscription: AnyPublisher<MealsInput, Never>) -> AnyPublisher<MealsOutput, Never> {
         subscription
             .sink { [weak self] events in
                 guard let self = self else { return }

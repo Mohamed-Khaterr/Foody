@@ -13,7 +13,7 @@ class FoodCategoriesCollectionViewController: UICollectionViewController {
     
     // MARK: - Variables
     private let viewModel = FoodCategoriesViewModel()
-    private let inputPublisher: PassthroughSubject<FoodCategoriesViewModel.Input, Never> = .init()
+    private let inputPublisher: PassthroughSubject<FoodCategoriesInput, Never> = .init()
     private var cancellable = Set<AnyCancellable>()
     
     

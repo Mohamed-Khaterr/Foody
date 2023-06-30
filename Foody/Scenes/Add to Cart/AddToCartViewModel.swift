@@ -9,7 +9,7 @@ import Foundation
 import Combine
 
 
-class AddToCartViewModel {
+final class AddToCartViewModel {
     
     enum Input {
         case viewDidLoad
@@ -90,8 +90,7 @@ class AddToCartViewModel {
         }
         .store(in: &cancellable)
         
-//        return outputPublisher.receive(on: DispatchQueue.main).eraseToAnyPublisher()
-        return outputPublisher.eraseToAnyPublisher()
+        return outputPublisher.receive(on: DispatchQueue.main).eraseToAnyPublisher()
     }
     
     private func createOrder(userName: String) {
