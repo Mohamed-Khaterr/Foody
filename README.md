@@ -55,6 +55,8 @@ An app that shows all meals from all around the world.
 - [The Meal API](https://www.themealdb.com/api.php)
 - Combine
 - Core Data
+- User Defaults
+- Delegation
 
 
 <!-- ____________________________________________________________________________ -->
