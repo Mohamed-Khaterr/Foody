@@ -1,25 +1,27 @@
 # Foody
 
 <!-- Project Settings -->
-![Xcode: Version](https://img.shields.io/badge/Xcode-Version%20Here-lightgray?logo=Xcode)
-![Swift: Version](https://img.shields.io/badge/Swift-Version%20Here-lightgray?logo=Swift)
-![iOS: Version](https://img.shields.io/badge/iOS-Target%20Version-lightgray) 
+![Xcode: Version](https://img.shields.io/badge/Xcode-14.3-lightgray?logo=Xcode)
+![Swift: Version](https://img.shields.io/badge/Swift-5.8-lightgray?logo=Swift)
+![iOS: Version](https://img.shields.io/badge/iOS-15.0-lightgray) 
 ![Devices: iPhone & iPad](https://img.shields.io/badge/Devices-iPhone%20&%20iPad-lightgray)
 ![Interface: UIKit | SwiftUI](https://img.shields.io/badge/Interface-UIKit-lightgray)
-![Architecture: MVC | MVVM | MVC](https://img.shields.io/badge/Architecture-MVC-lightgray)
+![Architecture: MVC | MVVM | MVC](https://img.shields.io/badge/Architecture-MVVM-lightgray)
 
 
 
 <!-- Main Screenshot -->
-<img 
-    src="" 
-    alt="Main Screenshot" 
-    width=800
-/>
+<p>
+    <img src="Mockups/Hotpot%200.png" width="19%" />
+    <img src="Mockups/Hotpot%201.png" width="19%" />
+    <img src="Mockups/Hotpot%202.png" width="19%" />
+    <img src="Mockups/Hotpot%203.png" width="19%" />
+    <img src="Mockups/Hotpot%204.png" width="19%" />
+</p>
 
 
 <!-- Project bref -->
-**In development***
+An app that shows all meals from all around the world.
 
 
 
@@ -35,16 +37,30 @@
 
 <!-- ____________________________________________________________________________ -->
 ## Features
+- Countries
+    - Meals in the Country
+- Meals Categories
+    - Meals in Category
+- Search for Meal
+- Meal Details
+    - Category
+    - Tags
+    - Ingredients and measure
+    - Instructions video
+- Add to Cart with the amount
 
 
 <!-- ____________________________________________________________________________ -->
 ## Technologies
-
+- [The Meal API](https://www.themealdb.com/api.php)
+- Combine
+- Core Data
 
 
 <!-- ____________________________________________________________________________ -->
 ## Dependencies
-
+- [SDWebImage](https://github.com/SDWebImage/SDWebImage)
+- [SkeletonView](https://github.com/Juanpe/SkeletonView)
 
 
 <!-- ____________________________________________________________________________ -->
@@ -53,10 +69,10 @@
 > Click on the image to show the demo video
 
 <!-- Video Link -->
-<a href="">
+<a href="https://youtu.be/TO8MNaZs5zE">
     <!-- Video Image -->
     <img 
-        src="" 
+        src="https://img.youtube.com/vi/TO8MNaZs5zE/0.jpg" 
         alt="Demo Video" 
         height="400"
     />
@@ -67,8 +83,8 @@
 <!-- ____________________________________________________________________________ -->
 ## Screenshot
 
-First Page | Second Page | Third Page
+_ |  | _
 ---------- | ----------- | ----------
-![]() | ![]() | ![]()
-![]() | ![]() | ![]()
-![]() | ![]() | ![]()
+![Home](screenshots/Home.PNG) | ![Meals](screenshots/Meals.PNG) | ![Meal Details](screenshots/Meal%20Details.PNG)
+![Search](screenshots/Search.PNG) | ![Add to Cart](screenshots/Cart%20adding.PNG) | ![Cart](screenshots/Cart.PNG)
+![Countries](screenshots/Categories.PNG) | ![Categories](screenshots/Categories.PNG) | ![]()
