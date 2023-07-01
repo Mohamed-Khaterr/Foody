@@ -71,6 +71,7 @@ final class MealsViewModel {
     
     public func bind(input subscription: AnyPublisher<MealsInput, Never>) -> AnyPublisher<MealsOutput, Never> {
         subscription
+            .receive(on: DispatchQueue.main)
             .sink { [weak self] events in
                 guard let self = self else { return }
                 switch events {

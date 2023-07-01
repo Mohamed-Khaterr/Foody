@@ -53,11 +53,11 @@ class OnboardingViewController: UIViewController {
     
     private var selectedSlide: Int = 0 {
         didSet {
-            if selectedSlide == slides.count - 1 {
-                button.setTitle("Get Started", for: .normal)
-                
-            } else {
+            // Button Title
+            if selectedSlide < (slides.count - 1) {
                 button.setTitle("Next", for: .normal)
+            } else {
+                button.setTitle("Get Started", for: .normal)
             }
         }
     }
@@ -121,6 +121,13 @@ class OnboardingViewController: UIViewController {
     @objc private func buttonPressed() {
         selectedSlide += 1
         
+        // CollectionView Scroll
+        let indexPath = IndexPath(item: selectedSlide, section: 0)
+        if let rect = collectionView.layoutAttributesForItem(at: indexPath)?.frame{
+            collectionView.scrollRectToVisible(rect, animated: true)
+        }
+        
+        // Navigation
         if selectedSlide == slides.count {
             let nav = UINavigationController(rootViewController: HomeCollectionViewController())
             nav.modalPresentationStyle = .fullScreen
@@ -128,11 +135,6 @@ class OnboardingViewController: UIViewController {
             present(nav, animated: true) {
                 UserDefaults.standard.set(true, forKey: "isSeeOnboardingPage")
             }
-        }
-        
-        let indexPath = IndexPath(item: selectedSlide, section: 0)
-        if let rect = collectionView.layoutAttributesForItem(at: indexPath)?.frame{
-            collectionView.scrollRectToVisible(rect, animated: true)
         }
     }
 }

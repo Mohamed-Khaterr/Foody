@@ -63,21 +63,23 @@ final class SearchViewModel {
     // MARK: - Methods
     public func bind(input subscription: AnyPublisher<SearchViewModel.Input, Never>) -> AnyPublisher<SearchViewModel.Output, Never> {
         inputSubscriber = nil
-        inputSubscriber = subscription.sink { [weak self] events in
-            guard let self = self else { return }
-            switch events {
-            case .viewDidLoad:
-                self.outputPublisher.send(.footerAppear(isAppear: false))
-                
-            case .searchTextFieldDidChange(let text):
-                self.fetchSearch(for: text)
-                
-            case .didSelectItemAt(let indexPath):
-                let meal = self.meals[indexPath.row]
-                let mealDetailsVC = MealDetailsViewController(mealID: meal.id, showPlaceOrderButton: true)
-                self.outputPublisher.send(.goToMealDetailsVC(mealDetailsVC))
+        inputSubscriber = subscription
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] events in
+                guard let self = self else { return }
+                switch events {
+                case .viewDidLoad:
+                    self.outputPublisher.send(.footerAppear(isAppear: false))
+                    
+                case .searchTextFieldDidChange(let text):
+                    self.fetchSearch(for: text)
+                    
+                case .didSelectItemAt(let indexPath):
+                    let meal = self.meals[indexPath.row]
+                    let mealDetailsVC = MealDetailsViewController(mealID: meal.id, showPlaceOrderButton: true)
+                    self.outputPublisher.send(.goToMealDetailsVC(mealDetailsVC))
+                }
             }
-        }
         return outputPublisher.eraseToAnyPublisher()
     }
     

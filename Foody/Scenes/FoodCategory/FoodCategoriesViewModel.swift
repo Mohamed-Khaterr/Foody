@@ -70,7 +70,9 @@ final class FoodCategoriesViewModel {
     
     // MARK: - Methods
     public func bind(ViewInput subscription: AnyPublisher<FoodCategoriesInput, Never>) -> AnyPublisher<FoodCategoriesOutput, Never> {
-        subscription.sink { [weak self] events in
+        subscription
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] events in
             guard let self = self else { return }
             switch events {
             case .viewDidLoad:

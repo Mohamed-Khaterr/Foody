@@ -55,7 +55,8 @@ class CartTableViewController: UITableViewController {
                     self.isFooterAppear = isAppeare
                     
                 case .goToMealDetailsVC(let mealsDetailsVC):
-                    self.navigationController?.pushViewController(mealsDetailsVC, animated: true)
+                    let nav = UINavigationController(rootViewController: mealsDetailsVC)
+                    self.present(nav, animated: true)
                 }
             }
             .store(in: &cancellable)

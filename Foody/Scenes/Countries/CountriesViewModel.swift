@@ -62,24 +62,26 @@ final class CountriesViewModel {
     
     // MARK: - Methods
     public func bind(input subscription: AnyPublisher<CountriesInput, Never>) -> AnyPublisher<CountriesOutput, Never> {
-        subscription.sink { [weak self] events in
-            guard let self = self else { return }
-            // Handle View inputs
-            switch events {
-            case .viewDidLoad:
-                self.fetchCountries()
-                
-            case .limitCountries(let isLimitCountries):
-                self.isLimitCountries = isLimitCountries
-                self.fetchCountries()
-                
-            case .selectContryAt(let indexPath):
-                let country = self.countries[indexPath.row]
-                let countryMealsVC = MealsCollectionViewController(in: .country(country.name))
-                outputPublisher.send(.navigateToCountryMeals(countryMealsVC))
+        subscription
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] events in
+                guard let self = self else { return }
+                // Handle View inputs
+                switch events {
+                case .viewDidLoad:
+                    self.fetchCountries()
+                    
+                case .limitCountries(let isLimitCountries):
+                    self.isLimitCountries = isLimitCountries
+                    self.fetchCountries()
+                    
+                case .selectContryAt(let indexPath):
+                    let country = self.countries[indexPath.row]
+                    let countryMealsVC = MealsCollectionViewController(in: .country(country.name))
+                    outputPublisher.send(.navigateToCountryMeals(countryMealsVC))
+                }
             }
-        }
-        .store(in: &cancellables)
+            .store(in: &cancellables)
         
         return outputPublisher.eraseToAnyPublisher()
     }

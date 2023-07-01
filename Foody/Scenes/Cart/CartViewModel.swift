@@ -55,7 +55,7 @@ final class CartViewModel {
     // MARK: - Methods
     public func bind(input subscription: AnyPublisher<CartInput, Never>) -> AnyPublisher<CartOutput, Never> {
         subscription
-            .receive(on: DispatchQueue.global())
+            .receive(on: DispatchQueue.main)
             .sink { [weak self] events in
                 guard let self = self else { return }
                 switch events {
@@ -74,7 +74,7 @@ final class CartViewModel {
             }
             .store(in: &cancellable)
         
-        return outputPublisher.receive(on: DispatchQueue.main).eraseToAnyPublisher()
+        return outputPublisher.eraseToAnyPublisher()
     }
     
     private func fetchOrders() {
