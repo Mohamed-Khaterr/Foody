@@ -57,6 +57,7 @@ An app that shows all meals from all around the world.
 - Core Data
 - User Defaults
 - Delegation
+- WebKit
 
 
 <!-- ____________________________________________________________________________ -->
